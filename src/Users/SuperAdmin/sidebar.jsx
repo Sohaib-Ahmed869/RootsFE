@@ -20,32 +20,12 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
       icon: <MdDashboard />,
     },
     {
-      name: "Customers",
-      icon: <FaPeopleGroup />,
-    },
-    {
       name: "Add Branch",
       icon: <FaPlus />,
     },
     {
       name: "Add Admin",
       icon: <FaPlus />,
-    },
-    {
-      name: "Invoices",
-      icon: <LiaFileInvoiceSolid />,
-    },
-    {
-      name: "Payments",
-      icon: <MdPayments />,
-    },
-    {
-      name: "Help",
-      icon: <IoHelpCircleSharp />,
-    },
-    {
-      name: "Settings",
-      icon: <IoSettings />,
     },
     {
       name: "Logout",
