@@ -4,6 +4,8 @@ import Dashboard from "./Users/SuperAdmin/Dashboard";
 import AdminDashboard from "./Users/Admin/Dashboard";
 import StudentDashboard from "./Users/Student/Dashboard";
 import ParentDashboard from "./Users/Parent/Dashboard";
+import TeacherDashboard from "./Users/Teacher/dashboard";
+
 const App = () => {
   return (
     <Router>
@@ -13,6 +15,7 @@ const App = () => {
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/parent/dashboard" element={<ParentDashboard />} />
+        <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
       </Routes>
     </Router>
   );

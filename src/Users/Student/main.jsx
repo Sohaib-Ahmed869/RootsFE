@@ -65,12 +65,12 @@ const Card = ({ children, className = "" }) => (
 // Student Overview Component
 const StudentOverview = () => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <Card className="bg-[#800000] text-white">
+    <Card className="text-black">
       <h3 className="text-lg font-medium mb-2">Merit Points</h3>
       <p className="text-3xl font-bold">{STUDENT.meritPoints}</p>
     </Card>
 
-    <Card className="bg-gray-800 text-white">
+    <Card className="text-black">
       <h3 className="text-lg font-medium mb-2">Demerits</h3>
       <p className="text-3xl font-bold">{STUDENT.demerits}</p>
     </Card>
