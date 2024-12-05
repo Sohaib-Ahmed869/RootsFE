@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import AddBranch from "./AddBranch";
-import AddAdmin from "./AddAdmin";
+import Dashboard from "./main";
 import Sidebar from "./sidebar";
 import Main from "./main";
 import { BiMenu } from "react-icons/bi";
-const Dashboard = () => {
+const AdminDashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeOption, setActiveOption] = useState("Dashboard");
 
@@ -27,12 +26,10 @@ const Dashboard = () => {
       </div>
 
       <div className="p-5 w-full">
-        {activeOption === "Add Branch" && <AddBranch />}
-        {activeOption === "Add Admin" && <AddAdmin />}
         {activeOption === "Dashboard" && <Main />}
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default AdminDashboard;
