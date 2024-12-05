@@ -5,12 +5,14 @@ import AdminDashboard from "./Users/Admin/Dashboard";
 import StudentDashboard from "./Users/Student/Dashboard";
 import ParentDashboard from "./Users/Parent/Dashboard";
 import TeacherDashboard from "./Users/Teacher/dashboard";
+import LandingPage from "./Utils/free";
 
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<LoginPage />} />
+        <Route path="/landing" element={<LandingPage />} />
         <Route path="/super-admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/student/dashboard" element={<StudentDashboard />} />

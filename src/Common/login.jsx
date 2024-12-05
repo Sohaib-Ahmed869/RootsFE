@@ -2,8 +2,14 @@ import React from "react";
 import logo from "../assets/logo.png";
 import roots_bg from "../assets/roots_bg.png";
 const Form = () => {
+  const onClickSubmit = (e) => {
+    e.preventDefault();
+    console.log("Form Submitted");
+    window.location.href = "/landing";
+  };
+
   return (
-    <form className="border border-gray-200 shadow-xl rounded-xl p-5 lg:p-10 bg-white flex flex-col gap-2 lg:gap-10">
+    <form className="border border-gray-200 shadow-xl rounded-xl p-5 lg:p-10 bg-white flex flex-col gap-2 lg:gap-10" onSubmit={onClickSubmit}>
       <div className="flex justify-between flex-col items-center lg:flex-row-reverse">
         <img src={logo} alt="logo" className="h-16" />
         <div>

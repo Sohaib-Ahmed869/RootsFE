@@ -7,6 +7,7 @@ import { MdPayments } from "react-icons/md";
 import { LiaFileInvoiceSolid } from "react-icons/lia";
 import { IoHelpCircleSharp } from "react-icons/io5";
 import { IoSettings } from "react-icons/io5";
+import { BiLogOut } from "react-icons/bi";
 import { FaPlus } from "react-icons/fa6";
 
 const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
@@ -33,6 +34,10 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
     {
       name: "Settings",
       icon: <IoSettings />,
+    },
+    {
+      name: "Logout",
+      icon: <BiLogOut />,
     },
   ]);
 
@@ -62,18 +67,34 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
         </button>
       </div>
       <div className="">
-        {options.map((option, index) => (
-          <div
-            key={index}
-            className={`flex items-center gap-4 p-2 cursor-pointer hover:bg-blue-200 ${
-              activeOption === option.name ? "bg-blue-200" : ""
-            }`}
-            onClick={() => setActiveOption(option.name)}
-          >
-            <div className="p-3 text-xl rounded-lg">{option.icon}</div>
-            <p>{option.name}</p>
-          </div>
-        ))}
+        {options.map((option, index) =>
+          option.name !== "Logout" ? (
+            <div
+              key={index}
+              className={`flex items-center gap-4 p-2 cursor-pointer hover:bg-blue-200 ${
+                activeOption === option.name ? "bg-blue-200" : ""
+              }`}
+              onClick={() => setActiveOption(option.name)}
+            >
+              <div className="p-3 text-xl rounded-lg">{option.icon}</div>
+              <p>{option.name}</p>
+            </div>
+          ) : (
+            <div
+              key={index}
+              className={`flex items-center gap-4 p-2 cursor-pointer hover:bg-blue-200 ${
+                activeOption === option.name ? "bg-blue-200" : ""
+              }`}
+              onClick={() => {
+                localStorage.removeItem("token");
+                window.location.href = "/";
+              }}
+            >
+              <div className="p-3 text-xl rounded-lg">{option.icon}</div>
+              <p>{option.name}</p>
+            </div>
+          )
+        )}
       </div>
     </div>
   );
