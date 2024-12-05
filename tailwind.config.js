@@ -1,23 +1,26 @@
 /** @type {import('tailwindcss').Config} */
+import daisyui from "daisyui";
+import tailwindAnimated from "tailwindcss-animated";
+
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       fontFamily: {
-        outfit: ["Outfit", "sans-serif"], // Add Outfit font
+        outfit: ["Outfit", "sans-serif"],
       },
     },
   },
   plugins: [
-    require("daisyui"),
-    require("tailwindcss-animated"),
+    daisyui,
+    tailwindAnimated,
   ],
   daisyui: {
     themes: [
       {
         light: {
-          primary: "#88141C", //ou crimson
-          secondary: "#C82026", //fire engine red
+          primary: "#88141C",
+          secondary: "#C82026",
           accent: "#FFFFFF",
           "base-100": "#ffffff",
           info: "#9ce37d",
