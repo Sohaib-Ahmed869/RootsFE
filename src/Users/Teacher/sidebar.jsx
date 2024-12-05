@@ -32,10 +32,6 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
       icon: <IoHelpCircleSharp />,
     },
     {
-      name: "Settings",
-      icon: <IoSettings />,
-    },
-    {
       name: "Logout",
       icon: <BiLogOut />,
     },
