@@ -19,27 +19,31 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
       icon: <MdDashboard />,
     },
     {
-      name: "Customers",
+      name: "Students",
       icon: <FaPeopleGroup />,
     },
     {
-      name: "Add Branch",
+      name: "Class Management",
       icon: <FaPlus />,
     },
     {
-      name: "Add Admin",
+      name: "Teacher Management",
       icon: <FaPlus />,
+    },
+    {
+      name: "Parent Management",
+      icon: <FaPeopleGroup />,
     },
     {
       name: "Invoices",
       icon: <LiaFileInvoiceSolid />,
     },
     {
-      name: "Payments",
+      name: "Fee Management",
       icon: <MdPayments />,
     },
     {
-      name: "Help",
+      name: "Merit Points",
       icon: <IoHelpCircleSharp />,
     },
     {

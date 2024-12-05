@@ -1,7 +1,12 @@
 import React, { useState } from "react";
-import Dashboard from "./main";
 import Sidebar from "./sidebar";
 import Main from "./main";
+import StudentsAdmin from "./AddStudent";
+import FeeManagement from "./FeeManagement";
+import MeritRulesManagement from "./MeritPoints";
+import TeacherManagement from "./AddTeacher";
+import ClassManagement from "./ClassManagement";
+import ParentManagement from "./AddParent";
 import { BiMenu } from "react-icons/bi";
 const AdminDashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,6 +32,12 @@ const AdminDashboard = () => {
 
       <div className="p-5 w-full">
         {activeOption === "Dashboard" && <Main />}
+        {activeOption === "Students" && <StudentsAdmin />}
+        {activeOption === "Fee Management" && <FeeManagement />}
+        {activeOption === "Merit Points" && <MeritRulesManagement />}
+        {activeOption === "Teacher Management" && <TeacherManagement />}
+        {activeOption === "Class Management" && <ClassManagement />}
+        {activeOption === "Parent Management" && <ParentManagement />}
       </div>
     </div>
   );
