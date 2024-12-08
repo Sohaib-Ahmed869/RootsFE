@@ -50,7 +50,7 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
     <div
       className={`${
         isOpen ? "translate-x-0" : "-translate-x-full"
-      } transform top-0 left-0 w-64 bg-[#E0FBFC] h-full fixed overflow-y-auto ease-in-out transition-all duration-300 z-30`}
+      } transform top-0 left-0 w-64 bg-[#9d0a10] text-white h-full fixed overflow-y-auto ease-in-out transition-all duration-300 z-30`}
     >
       <div className="flex justify-between items-center p-4 border-b border-gray-200">
         <img src={logo} alt="logo" className="h-10" />
@@ -78,8 +78,8 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
             (
           <div
             key={index}
-            className={`flex items-center gap-4 p-2 cursor-pointer hover:bg-blue-200 ${
-              activeOption === option.name ? "bg-blue-200" : ""
+            className={`flex items-center gap-4 p-2 cursor-pointer hover:bg-black ${
+              activeOption === option.name ? "bg-black" : ""
             }`}
             onClick={() => setActiveOption(option.name)}
           >
@@ -89,8 +89,8 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
           ):(
             <div
             key={index}
-            className={`flex items-center gap-4 p-2 cursor-pointer hover:bg-blue-200 ${
-              activeOption === option.name ? "bg-blue-200" : ""
+            className={`flex items-center gap-4 p-2 cursor-pointer hover:bg-black ${
+              activeOption === option.name ? "bg-black" : ""
             }`}
             onClick={() => {
               localStorage.removeItem("token");
