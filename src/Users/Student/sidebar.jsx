@@ -21,16 +21,8 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
       icon: <MdDashboard />,
     },
     {
-      name: "Report Card",
-      icon: <BiListOl />,
-    },
-    {
       name: "Merit System",
       icon: <LiaFileInvoiceSolid />,
-    },
-    {
-      name: "Homework",
-      icon: <IoHelpCircleSharp />,
     },
     {
       name: "Settings",

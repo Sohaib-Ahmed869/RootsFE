@@ -31,9 +31,7 @@ const StudentDashboard = () => {
 
       <div className="p-5 w-full">
         {activeOption === "Dashboard" && <Main />}
-        {activeOption === "Report Card" && <ReportCard />}
         {activeOption === "Merit System" && <MeritSystem />}
-        {activeOption === "Homework" && <HomeworkView />}
         {activeOption === "Settings" && <StudentPortal />}
       </div>
     </div>

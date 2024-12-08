@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import {
-  LineChart,
-  Line,
   BarChart,
   Bar,
   PieChart,
   Pie,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -14,322 +14,454 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { LogOut, Search } from "lucide-react";
 
-// Dummy Data
-const CLASSES = [
-  "Class 10-A",
-  "Class 10-B",
-  "Class 9-A",
-  "Class 9-B",
-  "Class 8-A",
-  "Class 8-B",
-];
-
-const STUDENTS = [
-  {
-    id: 1,
-    name: "John Doe",
-    class: "Class 10-A",
-    meritPoints: 150,
-    demerits: 2,
+const MERIT_DATA = {
+  overallStats: {
+    totalMerits: 1250,
+    totalViolations: 132,
+    activeStudents: 450,
+    teacherParticipation: 28,
   },
-  {
-    id: 2,
-    name: "Jane Smith",
-    class: "Class 10-A",
-    meritPoints: 145,
-    demerits: 0,
-  },
-  {
-    id: 3,
-    name: "Mike Johnson",
-    class: "Class 9-A",
-    meritPoints: 160,
-    demerits: 1,
-  },
-  {
-    id: 4,
-    name: "Sarah Williams",
-    class: "Class 9-B",
-    meritPoints: 155,
-    demerits: 0,
-  },
-  {
-    id: 5,
-    name: "Alex Brown",
-    class: "Class 8-A",
-    meritPoints: 170,
-    demerits: 0,
-  },
-  {
-    id: 6,
-    name: "Emily Davis",
-    class: "Class 8-B",
-    meritPoints: 140,
-    demerits: 3,
-  },
-  {
-    id: 7,
-    name: "Tom Wilson",
-    class: "Class 10-B",
-    meritPoints: 165,
-    demerits: 1,
-  },
-  {
-    id: 8,
-    name: "Lisa Anderson",
-    class: "Class 9-A",
-    meritPoints: 158,
-    demerits: 0,
-  },
-];
+  classWiseStats: [
+    { class: "10-A", merits: 280, violations: 25, netPoints: 255 },
+    { class: "10-B", merits: 265, violations: 30, netPoints: 235 },
+    { class: "9-A", merits: 245, violations: 22, netPoints: 223 },
+    { class: "9-B", merits: 230, violations: 28, netPoints: 202 },
+    { class: "8-A", merits: 120, violations: 15, netPoints: 105 },
+    { class: "8-B", merits: 110, violations: 12, netPoints: 98 },
+  ],
+  trendData: [
+    { month: "Jan", merits: 180, violations: 20 },
+    { month: "Feb", merits: 220, violations: 25 },
+    { month: "Mar", merits: 250, violations: 22 },
+    { month: "Apr", merits: 310, violations: 35 },
+    { month: "May", merits: 290, violations: 30 },
+  ],
+  topStudents: [
+    {
+      id: 1,
+      name: "John Smith",
+      class: "10-A",
+      points: 95,
+      teacher: "Mr. Anderson",
+    },
+    {
+      id: 2,
+      name: "Emma Davis",
+      class: "9-B",
+      points: 88,
+      teacher: "Mrs. Wilson",
+    },
+    {
+      id: 3,
+      name: "Michael Brown",
+      class: "10-B",
+      points: 85,
+      teacher: "Ms. Thompson",
+    },
+    {
+      id: 4,
+      name: "Sarah Wilson",
+      class: "9-A",
+      points: 82,
+      teacher: "Mr. Roberts",
+    },
+    {
+      id: 5,
+      name: "James Johnson",
+      class: "8-A",
+      points: 80,
+      teacher: "Ms. Davis",
+    },
+  ],
+  recentRecords: [
+    {
+      id: 1,
+      student: "John Smith",
+      class: "10-A",
+      type: "merit",
+      points: 5,
+      reason: "Outstanding leadership in school event",
+      teacher: "Mr. Anderson",
+      date: "2024-03-15",
+    },
+    {
+      id: 2,
+      student: "Emma Davis",
+      class: "9-B",
+      type: "violation",
+      points: -2,
+      reason: "Disruptive behavior in class",
+      teacher: "Mrs. Wilson",
+      date: "2024-03-14",
+    },
+    {
+      id: 3,
+      student: "Michael Brown",
+      class: "10-B",
+      type: "merit",
+      points: 3,
+      reason: "Helping new students",
+      teacher: "Ms. Thompson",
+      date: "2024-03-14",
+    },
+    {
+      id: 4,
+      student: "Sarah Wilson",
+      class: "9-A",
+      type: "merit",
+      points: 4,
+      reason: "Academic excellence",
+      teacher: "Mr. Roberts",
+      date: "2024-03-13",
+    },
+    {
+      id: 5,
+      student: "James Johnson",
+      class: "8-A",
+      type: "violation",
+      points: -1,
+      reason: "Late submission",
+      teacher: "Ms. Davis",
+      date: "2024-03-13",
+    },
+  ],
+  teacherStats: [
+    { name: "Mr. Anderson", meritsAwarded: 85, violations: 10, class: "10-A" },
+    { name: "Mrs. Wilson", meritsAwarded: 75, violations: 8, class: "9-B" },
+    { name: "Ms. Thompson", meritsAwarded: 90, violations: 12, class: "10-B" },
+    { name: "Mr. Roberts", meritsAwarded: 65, violations: 5, class: "9-A" },
+    { name: "Ms. Davis", meritsAwarded: 70, violations: 7, class: "8-A" },
+  ],
+  violationTypes: [
+    { type: "Disruptive Behavior", count: 45, totalPoints: 90 },
+    { type: "Late Submission", count: 35, totalPoints: 35 },
+    { type: "Attendance", count: 28, totalPoints: 28 },
+    { type: "Uniform Violation", count: 24, totalPoints: 24 },
+  ],
+};
 
-const TEACHERS = [
-  { id: 1, name: "Mr. Anderson", class: "Class 10-A", subject: "Mathematics" },
-  { id: 2, name: "Mrs. Smith", class: "Class 10-B", subject: "English" },
-  { id: 3, name: "Mr. Johnson", class: "Class 9-A", subject: "Science" },
-  { id: 4, name: "Ms. Davis", class: "Class 9-B", subject: "History" },
-  { id: 5, name: "Mr. Wilson", class: "Class 8-A", subject: "Physics" },
-  { id: 6, name: "Mrs. Brown", class: "Class 8-B", subject: "Chemistry" },
-];
+const COLORS = ["#4f46e5", "#7c3aed", "#2563eb", "#0891b2", "#0d9488"];
 
-const VIOLATIONS = [
-  { id: 1, type: "Late Arrival", count: 45, demerits: 1 },
-  { id: 2, type: "Uniform Violation", count: 32, demerits: 2 },
-  { id: 3, type: "Homework Incomplete", count: 28, demerits: 1 },
-  { id: 4, type: "Disruptive Behavior", count: 15, demerits: 3 },
-  { id: 5, type: "Unauthorized Device", count: 12, demerits: 2 },
-];
-
-const FEES_DATA = [
-  { month: "Jan", collected: 95000, pending: 5000 },
-  { month: "Feb", collected: 92000, pending: 8000 },
-  { month: "Mar", collected: 97000, pending: 3000 },
-  { month: "Apr", collected: 90000, pending: 10000 },
-  { month: "May", collected: 94000, pending: 6000 },
-  { month: "Jun", collected: 96000, pending: 4000 },
-];
-
-// Custom Card Components
-const Card = ({ children, className = "" }) => (
-  <div className={`bg-white rounded-lg shadow-lg ${className}`}>{children}</div>
-);
-
-const CardHeader = ({ children }) => (
-  <div className="border-b border-gray-200 p-6">{children}</div>
-);
-
-const CardTitle = ({ children }) => (
-  <h2 className="text-xl font-bold text-black">{children}</h2>
-);
-
-const CardContent = ({ children, className = "" }) => (
-  <div className={`p-6 ${className}`}>{children}</div>
-);
-
-// Top Achievers Component with Class Filter
-const TopAchievers = () => {
+const BranchAdminDashboard = () => {
   const [selectedClass, setSelectedClass] = useState("all");
-
-  const filteredStudents = STUDENTS.filter((student) =>
-    selectedClass === "all" ? true : student.class === selectedClass
-  )
-    .sort((a, b) => b.meritPoints - a.meritPoints)
-    .slice(0, 5);
+  const [selectedTimeRange, setSelectedTimeRange] = useState("all");
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <CardTitle>Top Achievers</CardTitle>
-          <select
-            value={selectedClass}
-            onChange={(e) => setSelectedClass(e.target.value)}
-            className="border rounded p-2"
-          >
-            <option value="all">All Classes</option>
-            {CLASSES.map((cls) => (
-              <option key={cls} value={cls}>
-                {cls}
-              </option>
-            ))}
-          </select>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Overview Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-sm text-gray-600">Total Merit Points</h3>
+            <p className="text-2xl font-bold text-green-600">
+              +{MERIT_DATA.overallStats.totalMerits}
+            </p>
+          </div>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-sm text-gray-600">Total Violations</h3>
+            <p className="text-2xl font-bold text-red-600">
+              -{MERIT_DATA.overallStats.totalViolations}
+            </p>
+          </div>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-sm text-gray-600">Active Students</h3>
+            <p className="text-2xl font-bold text-indigo-600">
+              {MERIT_DATA.overallStats.activeStudents}
+            </p>
+          </div>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-sm text-gray-600">Teacher Participation</h3>
+            <p className="text-2xl font-bold text-blue-600">
+              {MERIT_DATA.overallStats.teacherParticipation}
+            </p>
+          </div>
         </div>
-      </CardHeader>
-      <CardContent>
-        <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              <th className="text-left p-2">Name</th>
-              <th className="text-left p-2">Class</th>
-              <th className="text-left p-2">Merit Points</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredStudents.map((student) => (
-              <tr key={student.id} className="border-b">
-                <td className="p-2">{student.name}</td>
-                <td className="p-2">{student.class}</td>
-                <td className="p-2">{student.meritPoints}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </CardContent>
-    </Card>
-  );
-};
 
-// Violations Chart Component
-const ViolationsChart = () => (
-  <Card>
-    <CardHeader>
-      <CardTitle>Top Violations</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={VIOLATIONS}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="type" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="count" fill="#800000" name="Occurrences" />
-        </BarChart>
-      </ResponsiveContainer>
-    </CardContent>
-  </Card>
-);
-
-// Fees Collection Chart
-const FeesCollectionChart = () => (
-  <Card>
-    <CardHeader>
-      <CardTitle>Fees Collection Overview</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={FEES_DATA}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="collected"
-            stroke="#800000"
-            name="Collected"
-          />
-          <Line
-            type="monotone"
-            dataKey="pending"
-            stroke="#ff0000"
-            name="Pending"
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </CardContent>
-  </Card>
-);
-
-// Class Distribution Pie Chart
-const ClassDistribution = () => {
-  const classData = CLASSES.map((cls) => ({
-    name: cls,
-    value: STUDENTS.filter((student) => student.class === cls).length,
-  }));
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Students per Class</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={classData}
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="value"
-              label
+        {/* Filters */}
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+          <div className="flex flex-wrap gap-4">
+            <select
+              value={selectedClass}
+              onChange={(e) => setSelectedClass(e.target.value)}
+              className="px-4 py-2 border rounded-lg"
             >
-              {classData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={`hsl(${index * 45}, 70%, 50%)`}
-                />
+              <option value="all">All Classes</option>
+              {MERIT_DATA.classWiseStats.map((stat) => (
+                <option key={stat.class} value={stat.class}>
+                  {stat.class}
+                </option>
               ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
-  );
-};
+            </select>
+            <select
+              value={selectedTimeRange}
+              onChange={(e) => setSelectedTimeRange(e.target.value)}
+              className="px-4 py-2 border rounded-lg"
+            >
+              <option value="all">All Time</option>
+              <option value="thisMonth">This Month</option>
+              <option value="lastMonth">Last Month</option>
+              <option value="thisYear">This Year</option>
+            </select>
+          </div>
+        </div>
 
-// Main Dashboard Component
-const Dashboard = () => {
-  // Calculate KPI values
-  const totalStudents = STUDENTS.length;
-  const totalTeachers = TEACHERS.length;
-  const totalViolations = VIOLATIONS.reduce((sum, v) => sum + v.count, 0);
-  const feesCollection = FEES_DATA.reduce((sum, f) => sum + f.collected, 0);
+        {/* Charts Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Trend Chart */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Merit Points Trend</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={MERIT_DATA.trendData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="merits"
+                  stroke="#16a34a"
+                  name="Merits"
+                  strokeWidth={2}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="violations"
+                  stroke="#dc2626"
+                  name="Violations"
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
 
-  return (
-    <div className="min-h-screen p-8">
-      <h1 className="text-3xl font-bold text-black mb-8">
-        Branch Admin Dashboard
-      </h1>
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardContent>
-            <p className="text-gray-600 text-sm">Total Students</p>
-            <h3 className="text-2xl font-bold mt-2">{totalStudents}</h3>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <p className="text-gray-600 text-sm">Total Teachers</p>
-            <h3 className="text-2xl font-bold mt-2">{totalTeachers}</h3>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <p className="text-gray-600 text-sm">Total Violations</p>
-            <h3 className="text-2xl font-bold mt-2">{totalViolations}</h3>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <p className="text-gray-600 text-sm">Fees Collected</p>
-            <h3 className="text-2xl font-bold mt-2">
-              {feesCollection.toLocaleString()}/-
+          {/* Class-wise Distribution */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">
+              Class-wise Performance
             </h3>
-          </CardContent>
-        </Card>
-      </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={MERIT_DATA.classWiseStats}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="class" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="merits" fill="#16a34a" name="Merits" />
+                <Bar dataKey="violations" fill="#dc2626" name="Violations" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <TopAchievers />
-        <ViolationsChart />
-      </div>
+        {/* Recent Records and Top Performers */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Top Performers Table */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Top Performers</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-4 py-2 text-left">Student</th>
+                    <th className="px-4 py-2 text-left">Class</th>
+                    <th className="px-4 py-2 text-right">Points</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {MERIT_DATA.topStudents.map((student) => (
+                    <tr key={student.id} className="border-b">
+                      <td className="px-4 py-3">{student.name}</td>
+                      <td className="px-4 py-3">{student.class}</td>
+                      <td className="px-4 py-3 text-right font-bold text-green-600">
+                        {student.points}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <FeesCollectionChart />
-        <ClassDistribution />
+          {/* Teacher Performance */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Teacher Activity</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-4 py-2 text-left">Teacher</th>
+                    <th className="px-4 py-2 text-right">Merits</th>
+                    <th className="px-4 py-2 text-right">Violations</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {MERIT_DATA.teacherStats.map((teacher, index) => (
+                    <tr key={index} className="border-b">
+                      <td className="px-4 py-3">{teacher.name}</td>
+                      <td className="px-4 py-3 text-right text-green-600">
+                        {teacher.meritsAwarded}
+                      </td>
+                      <td className="px-4 py-3 text-right text-red-600">
+                        {teacher.violations}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Activity Log */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="px-4 py-2 text-left">Date</th>
+                  <th className="px-4 py-2 text-left">Student</th>
+                  <th className="px-4 py-2 text-left">Class</th>
+                  <th className="px-4 py-2 text-left">Type</th>
+                  <th className="px-4 py-2 text-left">Reason</th>
+                  <th className="px-4 py-2 text-left">Teacher</th>
+                  <th className="px-4 py-2 text-right">Points</th>
+                </tr>
+              </thead>
+              <tbody>
+                {MERIT_DATA.recentRecords.map((record) => (
+                  <tr key={record.id} className="border-b">
+                    <td className="px-4 py-3">
+                      {new Date(record.date).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3">{record.student}</td>
+                    <td className="px-4 py-3">{record.class}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-block px-2 py-1 rounded-full text-sm ${
+                          record.type === "merit"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {record.type === "merit" ? "Merit" : "Violation"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">{record.reason}</td>
+                    <td className="px-4 py-3">{record.teacher}</td>
+                    <td
+                      className={`px-4 py-3 text-right font-bold ${
+                        record.type === "merit"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {record.points > 0 ? "+" : ""}
+                      {record.points}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Violation Analysis */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          {/* Violation Types Chart */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">
+              Violation Distribution
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={MERIT_DATA.violationTypes.map((v) => ({
+                    name: v.type,
+                    count: v.count,
+                  }))}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  paddingAngle={5}
+                  dataKey="count"
+                >
+                  {MERIT_DATA.violationTypes.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Violation Summary Table */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Violation Summary</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-4 py-2 text-left">Violation Type</th>
+                    <th className="px-4 py-2 text-right">Occurrences</th>
+                    <th className="px-4 py-2 text-right">Total Points</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {MERIT_DATA.violationTypes.map((violation, index) => (
+                    <tr key={index} className="border-b">
+                      <td className="px-4 py-3">{violation.type}</td>
+                      <td className="px-4 py-3 text-right">
+                        {violation.count}
+                      </td>
+                      <td className="px-4 py-3 text-right text-red-600">
+                        -{violation.totalPoints}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr className="font-bold bg-gray-50">
+                    <td className="px-4 py-3">Total</td>
+                    <td className="px-4 py-3 text-right">
+                      {MERIT_DATA.violationTypes.reduce(
+                        (sum, v) => sum + v.count,
+                        0
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right text-red-600">
+                      -
+                      {MERIT_DATA.violationTypes.reduce(
+                        (sum, v) => sum + v.totalPoints,
+                        0
+                      )}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Actions Bar */}
+        <div className="mt-6 flex justify-end space-x-4">
+          <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+            Download Report
+          </button>
+          <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+            Print Summary
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default BranchAdminDashboard;

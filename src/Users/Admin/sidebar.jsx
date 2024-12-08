@@ -36,10 +36,6 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
       icon: <FaPeopleGroup />,
     },
     {
-      name: "Fee Management",
-      icon: <MdPayments />,
-    },
-    {
       name: "Merit Points",
       icon: <IoHelpCircleSharp />,
     },

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import HomeworkAssignment from "./allotHW";
-import AttendanceScreen from "./attendanceScreen";
+
 import MeritSystem from "./allotMeritPoints";
 import TeacherDashboardA from "./main";
 import Sidebar from "./sidebar";
@@ -29,8 +28,6 @@ const TeacherDashboard = () => {
       </div>
 
       <div className="p-5 w-full">
-        {activeOption === "Assign Homework" && <HomeworkAssignment />}
-        {activeOption === "Attendance" && <AttendanceScreen />}
         {activeOption === "Merit Points" && <MeritSystem />}
         {activeOption === "Dashboard" && <TeacherDashboardA />}
       </div>

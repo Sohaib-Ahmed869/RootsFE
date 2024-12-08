@@ -20,14 +20,6 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
       icon: <MdDashboard />,
     },
     {
-      name: "Attendance",
-      icon: <FaPeopleGroup />,
-    },
-    {
-      name: "Assign Homework",
-      icon: <FaPlus />,
-    },
-    {
       name: "Merit Points",
       icon: <IoHelpCircleSharp />,
     },

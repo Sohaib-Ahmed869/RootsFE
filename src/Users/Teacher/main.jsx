@@ -1,238 +1,172 @@
-import React, { useState } from "react";
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-} from "recharts";
+import React, { useState } from 'react';
+import { BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LogOut } from 'lucide-react';
+import Navbar from '../Parent/Navbar';
 
-// Dummy Statistics Data
-const CLASS_STATS = {
+// Sample data structure for merit points management
+const CLASS_MERIT_DATA = {
   "10-A": {
-    totalStudents: 30,
-    averageAttendance: 92,
-    averageScore: 85,
-    submissionRate: 88,
-    meritsAwarded: 45,
-    demeritsAwarded: 12,
-    pendingHomework: 5,
-    averageMarks: [
-      { month: "Jan", marks: 82 },
-      { month: "Feb", marks: 85 },
-      { month: "Mar", marks: 88 },
-      { month: "Apr", marks: 84 },
+    totalMerits: 45,
+    totalViolations: 12,
+    monthlyStats: [
+      { month: "Jan", merits: 12, violations: 3 },
+      { month: "Feb", merits: 15, violations: 4 },
+      { month: "Mar", merits: 18, violations: 5 }
     ],
-    subjectPerformance: [
-      { subject: "Mathematics", score: 85 },
-      { subject: "Science", score: 82 },
-      { subject: "English", score: 88 },
-      { subject: "History", score: 78 },
+    meritsByType: [
+      { type: "Academic Excellence", count: 20 },
+      { type: "Good Behavior", count: 15 },
+      { type: "Helping Others", count: 8 },
+      { type: "Extra-curricular", count: 2 }
     ],
-    homeworkCompletion: [
-      { status: "Submitted", value: 85 },
-      { status: "Late", value: 10 },
-      { status: "Pending", value: 5 },
+    violationsByType: [
+      { type: "Disruptive Behavior", count: 5 },
+      { type: "Late Submission", count: 4 },
+      { type: "Attendance", count: 3 }
     ],
-    recentActivities: [
+    recentRecords: [
       {
+        id: 1,
+        studentName: "John Smith",
+        type: "merit",
+        category: "Academic Excellence",
+        points: 5,
         date: "2024-03-15",
-        activity: "Test conducted",
-        details: "Chapter 5 Assessment",
+        comment: "Outstanding performance in Mathematics quiz"
       },
       {
+        id: 2,
+        studentName: "Sarah Johnson",
+        type: "violation",
+        category: "Disruptive Behavior",
+        points: -2,
         date: "2024-03-14",
-        activity: "Assignment",
-        details: "Math homework assigned",
+        comment: "Talking during class test"
       },
       {
+        id: 3,
+        studentName: "Mike Wilson",
+        type: "merit",
+        category: "Helping Others",
+        points: 3,
         date: "2024-03-13",
-        activity: "Merit Points",
-        details: "Awarded to 3 students",
-      },
-    ],
-    topPerformers: [
-      { name: "John Doe", score: 95 },
-      { name: "Jane Smith", score: 92 },
-      { name: "Mike Johnson", score: 90 },
-    ],
-    needsAttention: [
-      { name: "Alex Brown", issue: "Low attendance" },
-      { name: "Sarah Wilson", issue: "Missing assignments" },
-    ],
+        comment: "Helped new student with class materials"
+      }
+    ]
   },
   "10-B": {
-    totalStudents: 28,
-    averageAttendance: 88,
-    averageScore: 82,
-    submissionRate: 85,
-    meritsAwarded: 38,
-    demeritsAwarded: 15,
-    pendingHomework: 8,
-    averageMarks: [
-      { month: "Jan", marks: 78 },
-      { month: "Feb", marks: 82 },
-      { month: "Mar", marks: 85 },
-      { month: "Apr", marks: 82 },
+    totalMerits: 38,
+    totalViolations: 15,
+    monthlyStats: [
+      { month: "Jan", merits: 10, violations: 4 },
+      { month: "Feb", merits: 13, violations: 6 },
+      { month: "Mar", merits: 15, violations: 5 }
     ],
-    subjectPerformance: [
-      { subject: "Mathematics", score: 80 },
-      { subject: "Science", score: 85 },
-      { subject: "English", score: 82 },
-      { subject: "History", score: 81 },
+    meritsByType: [
+      { type: "Academic Excellence", count: 18 },
+      { type: "Good Behavior", count: 12 },
+      { type: "Helping Others", count: 6 },
+      { type: "Extra-curricular", count: 2 }
     ],
-    homeworkCompletion: [
-      { status: "Submitted", value: 80 },
-      { status: "Late", value: 12 },
-      { status: "Pending", value: 8 },
+    violationsByType: [
+      { type: "Disruptive Behavior", count: 6 },
+      { type: "Late Submission", count: 5 },
+      { type: "Attendance", count: 4 }
     ],
-    recentActivities: [
+    recentRecords: [
       {
+        id: 4,
+        studentName: "Emily Brown",
+        type: "merit",
+        category: "Academic Excellence",
+        points: 4,
         date: "2024-03-15",
-        activity: "Quiz",
-        details: "Science Quiz Conducted",
+        comment: "Perfect score in Science test"
       },
       {
+        id: 5,
+        studentName: "Tom Davis",
+        type: "merit",
+        category: "Good Behavior",
+        points: 3,
         date: "2024-03-14",
-        activity: "Project",
-        details: "Group project assignments",
-      },
-      {
-        date: "2024-03-12",
-        activity: "Demerits",
-        details: "Issued for late submissions",
-      },
-    ],
-    topPerformers: [
-      { name: "Emily Davis", score: 92 },
-      { name: "Tom Wilson", score: 90 },
-      { name: "Lisa Anderson", score: 88 },
-    ],
-    needsAttention: [
-      { name: "Peter Parker", issue: "Declining performance" },
-      { name: "Mary Jane", issue: "Frequent absences" },
-      { name: "Harry Osborn", issue: "Late submissions" },
-    ],
-  },
+        comment: "Helped maintain class discipline"
+      }
+    ]
+  }
 };
 
-const COLORS = ["#800000", "#A52A2A", "#B22222", "#8B0000"];
+const handleLogout = () => {
+  // Add logout logic here
+  navigate("/");
+};
 
-const TeacherDashboard = () => {
+
+const COLORS = ['#88141C', '#C53030', '#DC2626', '#EF4444', '#F87171'];
+const VIOLATION_COLORS = ['#88141C', '#C53030', '#DC2626'];
+
+const TeacherMeritDashboard = () => {
   const [selectedClass, setSelectedClass] = useState("10-A");
-  const stats = CLASS_STATS[selectedClass];
+  const stats = CLASS_MERIT_DATA[selectedClass];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">
-            Teacher Dashboard
-          </h1>
-          <select
-            value={selectedClass}
-            onChange={(e) => setSelectedClass(e.target.value)}
-            className="select select-bordered w-48"
-          >
-            <option value="10-A">Class 10-A</option>
-            <option value="10-B">Class 10-B</option>
-          </select>
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar onLogout={handleLogout} />
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-sm text-gray-600">Total Students</h3>
-            <p className="text-2xl font-bold">{stats.totalStudents}</p>
+            <h3 className="text-sm text-gray-600">Total Merit Points Awarded</h3>
+            <p className="text-2xl font-bold text-green-600">+{stats.totalMerits}</p>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-sm text-gray-600">Average Attendance</h3>
-            <p className="text-2xl font-bold text-green-600">
-              {stats.averageAttendance}%
-            </p>
+            <h3 className="text-sm text-gray-600">Total Violations Recorded</h3>
+            <p className="text-2xl font-bold text-red-600">-{stats.totalViolations}</p>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-sm text-gray-600">Average Score</h3>
-            <p className="text-2xl font-bold text-[#800000]">
-              {stats.averageScore}%
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-sm text-gray-600">Submission Rate</h3>
-            <p className="text-2xl font-bold text-blue-600">
-              {stats.submissionRate}%
+            <h3 className="text-sm text-gray-600">Net Class Points</h3>
+            <p className="text-2xl font-bold text-indigo-600">
+              {stats.totalMerits - stats.totalViolations}
             </p>
           </div>
         </div>
 
-        {/* Charts Row 1 */}
+        {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Performance Trend */}
+          {/* Monthly Trend */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold mb-4">Performance Trend</h3>
+            <h3 className="text-lg font-semibold mb-4">Monthly Trend</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={stats.averageMarks}>
+              <LineChart data={stats.monthlyStats}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="marks"
-                  stroke="#800000"
-                  strokeWidth={2}
-                />
+                <Legend />
+                <Line type="monotone" dataKey="merits" stroke="#4f46e5" name="Merits" strokeWidth={2} />
+                <Line type="monotone" dataKey="violations" stroke="#dc2626" name="Violations" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Subject Performance */}
+          {/* Distribution by Type */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold mb-4">Subject Performance</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={stats.subjectPerformance}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="subject" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="score" fill="#800000" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Charts Row 2 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Homework Status */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold mb-4">Homework Completion</h3>
+            <h3 className="text-lg font-semibold mb-4">Merit Points Distribution</h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={stats.homeworkCompletion}
+                  data={stats.meritsByType.map((entry) => ({ name: entry.type, count: entry.count }))}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
                   outerRadius={80}
-                  fill="#8884d8"
+                  fill="#88141C"
                   paddingAngle={5}
-                  dataKey="value"
-                  label
+                  dataKey="count"
                 >
-                  {stats.homeworkCompletion.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
+                  {stats.meritsByType.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -240,67 +174,48 @@ const TeacherDashboard = () => {
               </PieChart>
             </ResponsiveContainer>
           </div>
-
-          {/* Recent Activities */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold mb-4">Recent Activities</h3>
-            <div className="space-y-4">
-              {stats.recentActivities.map((activity, index) => (
-                <div
-                  key={index}
-                  className="flex items-start gap-3 border-b pb-3"
-                >
-                  <div className="w-2 h-2 mt-2 rounded-full bg-[#800000]" />
-                  <div>
-                    <p className="font-medium">{activity.activity}</p>
-                    <p className="text-sm text-gray-500">{activity.details}</p>
-                    <p className="text-xs text-gray-400">
-                      {new Date(activity.date).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
-        {/* Student Lists */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Top Performers */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold mb-4">Top Performers</h3>
-            <div className="space-y-3">
-              {stats.topPerformers.map((student, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between border-b pb-2"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-[#800000]">
-                      #{index + 1}
-                    </span>
-                    <span>{student.name}</span>
-                  </div>
-                  <span className="badge badge-success">{student.score}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Needs Attention */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold mb-4">Needs Attention</h3>
-            <div className="space-y-3">
-              {stats.needsAttention.map((student, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between border-b pb-2"
-                >
-                  <span>{student.name}</span>
-                  <span className="badge badge-error">{student.issue}</span>
-                </div>
-              ))}
-            </div>
+        {/* Recent Records */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold mb-4">Recent Records</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="px-4 py-2 text-left">Date</th>
+                  <th className="px-4 py-2 text-left">Student</th>
+                  <th className="px-4 py-2 text-left">Type</th>
+                  <th className="px-4 py-2 text-left">Category</th>
+                  <th className="px-4 py-2 text-left">Comment</th>
+                  <th className="px-4 py-2 text-right">Points</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.recentRecords.map((record) => (
+                  <tr key={record.id} className="border-b">
+                    <td className="px-4 py-3">{new Date(record.date).toLocaleDateString()}</td>
+                    <td className="px-4 py-3">{record.studentName}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 rounded-full text-sm ${
+                        record.type === 'merit' 
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {record.type === 'merit' ? 'Merit' : 'Violation'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">{record.category}</td>
+                    <td className="px-4 py-3">{record.comment}</td>
+                    <td className={`px-4 py-3 text-right font-bold ${
+                      record.type === 'merit' ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {record.points > 0 ? '+' : ''}{record.points}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -308,4 +223,4 @@ const TeacherDashboard = () => {
   );
 };
 
-export default TeacherDashboard;
+export default TeacherMeritDashboard;

@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "./sidebar";
-import Main from "./main";
+import BranchAdminDashboard from "./main";
 import StudentsAdmin from "./AddStudent";
-import FeeManagement from "./FeeManagement";
 import MeritRulesManagement from "./MeritPoints";
 import TeacherManagement from "./AddTeacher";
 import ClassManagement from "./ClassManagement";
@@ -31,9 +30,8 @@ const AdminDashboard = () => {
       </div>
 
       <div className="p-5 w-full">
-        {activeOption === "Dashboard" && <Main />}
+        {activeOption === "Dashboard" && <BranchAdminDashboard />}
         {activeOption === "Students" && <StudentsAdmin />}
-        {activeOption === "Fee Management" && <FeeManagement />}
         {activeOption === "Merit Points" && <MeritRulesManagement />}
         {activeOption === "Teacher Management" && <TeacherManagement />}
         {activeOption === "Class Management" && <ClassManagement />}
