@@ -28,7 +28,6 @@ const ClassManagement = () => {
   const [subjectsList, setSubjectsList] = useState([]);
 
   const [newClass, setNewClass] = useState({
-    name: "",
     grade: "",
     section: "",
   });
@@ -88,11 +87,12 @@ const ClassManagement = () => {
     e.preventDefault();
     try {
       // Create class with subjects
-      await BranchService.addClass(newClass.name, branchId);
+      const name = `${newClass.grade}-${newClass.section}`;
+      await BranchService.addClass(name, branchId);
       await fetchClasses();
 
       // Reset form
-      setNewClass({ name: "", grade: "", section: "" });
+      setNewClass({ grade: "", section: "" });
       setSubjectsList([]);
       setShowModal(false);
     } catch (error) {
@@ -276,20 +276,7 @@ const ClassManagement = () => {
                     />
                   </div>
 
-                  <div className="md:col-span-2">
-                    <label className="label">
-                      <span className="label-text">Class Name</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={newClass.name}
-                      onChange={(e) =>
-                        setNewClass({ ...newClass, name: e.target.value })
-                      }
-                      className="input input-bordered w-full"
-                      required
-                    />
-                  </div>
+                
                 </div>
 
                 <div className="modal-action">
