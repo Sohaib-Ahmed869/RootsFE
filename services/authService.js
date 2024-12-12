@@ -209,10 +209,18 @@ export class AuthService {
     );
   }
   static async getStudents(){
-    return axios.get(`${BASE_URL}/auth/student`, this.getAuthHeaders());
+    return axios.get(`${BASE_URL}/auth/student2`, this.getAuthHeaders());
   }
   static async getAdminBranch(){
     return axios.get(`${BASE_URL}/auth/get-admin-branch`, this.getAuthHeaders());
+  }
+  static async getStudentDash()
+  {
+    return axios.get(`${BASE_URL}/auth/student-dash`, this.getAuthHeaders());
+  }
+  static async getStudentDash2()
+  {
+    return axios.get(`${BASE_URL}/auth/student-dash2`, this.getAuthHeaders());
   }
 
   static async registerParent(
