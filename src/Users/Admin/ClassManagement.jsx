@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Plus, Users, BookOpen, GraduationCap, Search } from 'lucide-react';
-
+import { BranchService } from '../../../services/branchService';
+import { AuthService } from '../../../services/authService';
 // Initial dummy data for classes
 const INITIAL_CLASSES = [
   {
@@ -55,6 +56,8 @@ const ClassManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingClass, setEditingClass] = useState(null);
+  const[branchId,setBranchId] = useState(1);
+  const [data,setData] = useState([]);
 
   const [newClass, setNewClass] = useState({
     name: '',
@@ -68,6 +71,25 @@ const ClassManagement = () => {
     room: '',
     academicYear: ''
   });
+  useEffect(()=>{
+    AuthService.getAdminBranch().then((response)=>{
+      console.log(response.data);
+      setBranchId(response.data._id);
+    }).catch((error)=>{
+      console.log(error);
+    });
+  },[]);
+  useEffect(()=>{
+    BranchService.getBranchClasses(branchId).then((response)=>{
+      console.log(response.data);
+      // setData(response.data.data);
+      setClasses(response.data.data);
+    }).catch((error)=>{
+      console.log(error);
+    });
+  }
+  ,[branchId]);
+
 
   const getFilteredClasses = () => {
     if (!searchQuery) return classes;
@@ -176,7 +198,7 @@ const ClassManagement = () => {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-xl font-bold text-gray-800">{cls.name}</h3>
-                  <p className="text-gray-600">Grade {cls.grade} Section {cls.section}</p>
+                  <p className="text-gray-600">Grade {cls.grade} </p>
                 </div>
                 <button
                   onClick={() => handleEdit(cls)}
@@ -206,20 +228,7 @@ const ClassManagement = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-gray-500">Room:</span>
-                    <span className="ml-2">{cls.room}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Schedule:</span>
-                    <span className="ml-2">{cls.schedule}</span>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-gray-500">Academic Year:</span>
-                    <span className="ml-2">{cls.academicYear}</span>
-                  </div>
-                </div>
+               
               </div>
             </div>
           ))}

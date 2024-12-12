@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Search, Plus, UserPlus } from "lucide-react";
 import { AuthService } from "../../../services/authService";
+import { BranchService } from "../../../services/branchService";
 
 // Dummy data expanded to include more student details
 const ALL_STUDENTS = {
@@ -125,7 +126,7 @@ const StudentsAdmin = () => {
       const response = await AuthService.getStudents();
       setData(response.data);
       AuthService.getAdminBranch().then((response) => { 
-        setBranchId(response.data.branch_id);
+        setBranchId(response.data._id);
       });
   
     };
@@ -191,13 +192,16 @@ const StudentsAdmin = () => {
       newStudent.cnic,
       newStudent.address,
       newStudent.phoneNumber,
-      0
+      0,
+      newStudent.class
 
     ).then((response) => {
       console.log(response);
     }).catch((error) => {
       console.log(error);
     });
+    
+    
 
 
     
@@ -625,33 +629,9 @@ const StudentsAdmin = () => {
                   </div>
 
                   {/* Parent Information */}
-                  <div>
-                    <label className="label">
-                      <span className="label-text">Parent/Guardian Name</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="parentName"
-                      value={newStudent.parentName}
-                      onChange={handleInputChange}
-                      className="input input-bordered w-full"
-                      required
-                    />
-                  </div>
+                  
 
-                  <div>
-                    <label className="label">
-                      <span className="label-text">Parent/Guardian Phone</span>
-                    </label>
-                    <input
-                      type="tel"
-                      name="parentPhone"
-                      value={newStudent.parentPhone}
-                      onChange={handleInputChange}
-                      className="input input-bordered w-full"
-                      required
-                    />
-                  </div>
+                 
                 </div>
 
                 <div className="modal-action">

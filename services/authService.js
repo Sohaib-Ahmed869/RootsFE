@@ -143,7 +143,8 @@ export class AuthService {
     cnic,
     address = "",
     contactNumber = "",
-    age = null
+    age = null,
+    class_name = ""
   ) {
     return axios.post(
       `${BASE_URL}/auth/register/student`,
@@ -159,6 +160,7 @@ export class AuthService {
         address,
         contactNumber,
         age,
+        class_name,
       },
       this.getAuthHeaders()
     );

@@ -65,8 +65,8 @@ export class BranchService {
    * @param {string} class_id - Class ID
    * @param {Array<string>} student_ids - Array of student IDs
    */
-  static async addStudentsToClass(class_id, student_ids) {
-    return axios.post(`${BASE_URL}/branch/class/add-students`, { class_id, student_ids }, this.getAuthHeaders());
+  static async addStudentsToClass(class_name, student_ids) {
+    return axios.post(`${BASE_URL}/branch/class/add-students`, { class_name, student_ids }, this.getAuthHeaders());
   }
 
   /**
@@ -125,5 +125,8 @@ export class BranchService {
   static async getAwardedMeritPoints(teacher_id) {
     return axios.get(`${BASE_URL}/teacher/merit/${teacher_id}`, this.getAuthHeaders());
   }
+  static getBranchClasses(branch_id){
+    return axios.get(`${BASE_URL}/branch/classes/${branch_id}`, this.getAuthHeaders());
+  } 
   
 }
