@@ -1,15 +1,41 @@
 import React from 'react';
 import { LineChart, Line, BarChart, Bar, CartesianGrid, Tooltip, Legend, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-
+import { Star } from 'lucide-react';
 // Student Data
 const STUDENT = {
   id: "ST001",
   name: "John Doe",
-  class: "10-A",
+  class: "5-A",
   rollNumber: "2024-001",
   totalMeritPoints: 85,
   totalDemerits: 8,
   netPoints: 77
+};
+const NotificationBadge = () => {
+  return (
+    <div className="bg-gradient-to-r from-yellow-100 to-amber-100 rounded-lg p-4 shadow-md mb-6 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className="relative">
+          <Star 
+            className="w-8 h-8 text-yellow-500 animate-spin-slow" 
+            fill="#f59e0b"
+          />
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+        </div>
+        <div>
+          <p className="text-amber-800 font-semibold text-lg">
+            Congratulations! 🎉
+          </p>
+          <p className="text-amber-700">
+            You've been awarded 3 new merit points
+          </p>
+        </div>
+      </div>
+      <div className="bg-yellow-500 text-white font-bold text-xl h-12 w-12 rounded-full flex items-center justify-center animate-bounce">
+        +3
+      </div>
+    </div>
+  );
 };
 
 // Merit Points History
@@ -88,6 +114,9 @@ const StudentMeritDashboard = () => {
             Class {STUDENT.class} | Roll No: {STUDENT.rollNumber}
           </p>
         </div>
+
+        {/* Notification */}
+        <NotificationBadge />
 
         {/* Merit Points Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
