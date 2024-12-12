@@ -1,5 +1,6 @@
 import React from 'react';
 import { LineChart, Line, BarChart, Bar, CartesianGrid, Tooltip, Legend, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import { AuthService } from '../../../services/authService';
 import { Star } from 'lucide-react';
 // Student Data
 const STUDENT = {
@@ -102,16 +103,24 @@ const Card = ({ children, className = "" }) => (
 );
 
 const StudentMeritDashboard = () => {
+  const [data, setData] = React.useState(null);
+  React.useEffect(() => {
+    const fetchData = async () => {
+     const res=await AuthService.getStudentDash();
+      setData(res.data);
+    };
+    fetchData();
+  }, []);
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       {/* Header with Student Info */}
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            Welcome, {STUDENT.name}
+            Welcome, {data && data.student.name}
           </h1>
           <p className="text-gray-600">
-            Class {STUDENT.class} | Roll No: {STUDENT.rollNumber}
+            Class {data && data.student.class} | Roll No: {data && data.student.rollNumber}
           </p>
         </div>
 
@@ -122,15 +131,15 @@ const StudentMeritDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <h3 className="text-sm text-gray-600">Total Merit Points</h3>
-            <p className="text-2xl font-bold text-green-600">+{STUDENT.totalMeritPoints}</p>
+            <p className="text-2xl font-bold text-green-600">+{data && data.student.totalMeritPoints}</p>
           </Card>
           <Card>
             <h3 className="text-sm text-gray-600">Total Demerits</h3>
-            <p className="text-2xl font-bold text-red-600">-{STUDENT.totalDemerits}</p>
+            <p className="text-2xl font-bold text-red-600">-{data && data.student.totalDemerits}</p>
           </Card>
           <Card>
             <h3 className="text-sm text-gray-600">Net Points</h3>
-            <p className="text-2xl font-bold text-indigo-600">{STUDENT.netPoints}</p>
+            <p className="text-2xl font-bold text-indigo-600">{data && data.student.netPoints}</p>
           </Card>
         </div>
 
@@ -139,7 +148,7 @@ const StudentMeritDashboard = () => {
           <Card>
             <h3 className="text-lg font-semibold mb-4">Monthly Progress</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={MERIT_HISTORY}>
+              <LineChart data={data && data.meritHistory}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
@@ -155,7 +164,7 @@ const StudentMeritDashboard = () => {
           <Card>
             <h3 className="text-lg font-semibold mb-4">Points by Category</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={MERIT_CATEGORIES}>
+              <BarChart data={data && data.meritCategories}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="category" />
                 <YAxis />
@@ -182,7 +191,7 @@ const StudentMeritDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {MERIT_RECORDS.map((record) => (
+                {data && data.meritRecords.map((record) => (
                   <tr key={record.id} className="border-b">
                     <td className="px-4 py-3">{new Date(record.date).toLocaleDateString()}</td>
                     <td className="px-4 py-3">

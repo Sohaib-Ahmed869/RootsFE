@@ -197,7 +197,7 @@ const ParentManagement = () => {
 
                 <div>
                   <p className="text-sm text-gray-500">Associated Student</p>
-                  <p>{students.find(s => s._id === parent.children[0])?.name || 'No student associated'}</p>
+                  <p>{students && students.find(s => s._id === parent.children[0])?.name || 'No student associated'}</p>
                 </div>
               </div>
             </div>
