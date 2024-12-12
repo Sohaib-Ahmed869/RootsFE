@@ -13,8 +13,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/landing" element={<LandingPage />} />
-        <Route path="/super-admin/dashboard" element={<Dashboard />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/superadmin/dashboard" element={<Dashboard />} />
+        <Route path="/branchadmin/dashboard" element={<AdminDashboard />} />
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/parent/dashboard" element={<ParentDashboard />} />
         <Route path="/teacher/dashboard" element={<TeacherDashboard />} />

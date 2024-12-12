@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { BiPlus } from "react-icons/bi";
 import logo from "../../assets/logo.png";
+import { BranchService } from "../../../services/branchService";
 
 const AddBranch = () => {
   const [branch, setBranch] = useState({
@@ -9,6 +10,9 @@ const AddBranch = () => {
     openingHours: "",
     closingHours: "",
     city: "",
+    capacity: "",
+    contactNumber: "",
+    email :""
   });
 
   const handleChange = (e) => {
@@ -20,7 +24,20 @@ const AddBranch = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(branch);
+    BranchService.createBranch(
+      branch.branchName,
+      branch.branchAddress,
+      branch.contactNumber,
+      branch.email,
+      branch.capacity
+    )
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    
   };
 
   return (
@@ -80,6 +97,32 @@ const AddBranch = () => {
             value={branch.city}
             onChange={handleChange}
           />
+          <label>Capacity</label>
+          <input
+            type="number"
+            name="capacity"
+            className="input input-bordered"
+            value={branch.capacity}
+            onChange={handleChange}
+          />
+          <label>Contact Number</label>
+          <input
+            type="text"
+            name="contactNumber"
+            className="input input-bordered"
+            value={branch.contactNumber}
+            onChange={handleChange}
+          />
+          <label>Email</label>
+          <input
+            type="email"
+            name="email"
+            className="input input-bordered"
+            value={branch.email}
+            onChange={handleChange}
+
+          />
+
 
           <button type="submit" className="btn btn-primary">
             Submit

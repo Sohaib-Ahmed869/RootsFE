@@ -1,11 +1,26 @@
 import React from "react";
 import logo from "../assets/logo.png";
+import { AuthService } from "../../services/authService";
 import roots_bg from "../assets/roots_bg.png";
+
 const Form = () => {
-  const onClickSubmit = (e) => {
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [role, setRole] = React.useState("superadmin");
+
+  const onClickSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Submitted");
-    window.location.href = "/landing";
+    const response =await AuthService.login(role, email, password);
+    console.log(response);
+    const data =await response.json();
+    console.log(data);
+    if(data.token){
+      localStorage.setItem('token', data.token);
+      window.location.href = `/${role}/dashboard`;
+    } 
+
+
+    
   };
 
   return (
@@ -21,11 +36,21 @@ const Form = () => {
       </div>
       <div className="flex flex-col gap-2">
         <label htmlFor="email">Email</label>
-        <input type="email" className="input input-bordered" id="email" />
+        <input type="email" className="input input-bordered" id="email" onChange={(e)=>setEmail(e.target.value)} />
       </div>
       <div className="flex flex-col gap-2">
         <label htmlFor="password">Password</label>
-        <input type="password" className="input input-bordered" id="password" />
+        <input type="password" className="input input-bordered" id="password" onChange={(e)=>setPassword(e.target.value)} />
+      </div>
+      <div className="flex flex-col gap-2">
+        <label htmlFor="role">Role</label>
+        <select id="role" className="input input-bordered" onChange={(e)=>setRole(e.target.value)}>
+          <option value="superadmin">SuperAdmin</option>
+          <option value="branchadmin">BranchAdmin</option>
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+          <option value="parent">Parent</option>
+        </select>
       </div>
       <div className="flex justify-between items-center">
         <div className="flex gap-2 items-center">
@@ -48,6 +73,7 @@ const Form = () => {
 };
 
 const LoginPage = () => {
+
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="z-10 lg:w-1/2 p-3 lg:p-0">

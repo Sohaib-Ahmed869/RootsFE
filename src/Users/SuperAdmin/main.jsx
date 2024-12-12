@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -15,7 +15,7 @@ import {
   Cell,
 } from "recharts";
 import { LogOut, Search, Download, Filter, ChevronDown } from "lucide-react";
-
+import { BranchService } from "../../../services/branchService";
 // Sample data structure
 const SUPER_ADMIN_DATA = {
   branches: [
@@ -597,6 +597,23 @@ const SuperAdminDashboard = () => {
   const [dateRange, setDateRange] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [branches, setBranches] = useState([]);
+  useEffect(() => {
+    const fetchBranches = async () => {
+      const response = await BranchService.getAllBranches();
+      //const data = await response.json();
+      console.log(response);
+      setBranches(response.data);
+
+    };
+    fetchBranches();
+  }, []);
+  useEffect(() => {
+    console.log("Here")
+    console.log(branches);
+    console.log(selectedBranch);
+  }, [selectedBranch]);
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -613,13 +630,13 @@ const SuperAdminDashboard = () => {
             {/* Global Filters */}
             <div className="flex items-center space-x-4">
               <select
-                value={selectedBranch || ""}
-                onChange={(e) => setSelectedBranch(e.target.value || null)}
+                value={selectedBranch}
+                onChange={(e) => {console.log("changing");console.log(e.target.value);setSelectedBranch(e.target.value)}}
                 className="px-4 py-2 border rounded-lg"
               >
                 <option value="">All Branches</option>
-                {SUPER_ADMIN_DATA.branches.map((branch) => (
-                  <option key={branch.id} value={branch.id}>
+                {branches.branches && branches.branches.map((branch) => (
+                  <option key={branch.id} value={branches.branches.indexOf(branch)}>
                     {branch.name}
                   </option>
                 ))}
@@ -632,7 +649,7 @@ const SuperAdminDashboard = () => {
                   className="px-4 py-2 border rounded-lg"
                 >
                   <option value="all">All Classes</option>
-                  {SUPER_ADMIN_DATA.branchData[selectedBranch].classes.map(
+                  {branches.branchData && branches.branchData[selectedBranch].classes.map(
                     (cls) => (
                       <option key={cls} value={cls}>
                         {cls}
@@ -685,15 +702,15 @@ const SuperAdminDashboard = () => {
         {/* Branch Overview - Shown when no branch is selected */}
         {!selectedBranch && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            {SUPER_ADMIN_DATA.branches.map((branch) => (
+            {branches && branches.branches && branches.branches.map((branch) => (
               <div
                 key={branch.id}
                 className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"
                 onClick={() => setSelectedBranch(branch.id)}
               >
                 <h3 className="text-lg font-semibold">{branch.name}</h3>
-                <p className="text-gray-600">{branch.location}</p>
-                <p className="mt-2">Students: {branch.totalStudents}</p>
+                <p className="text-gray-600">{branch.address}</p>
+                <p className="mt-2">Students: {branch.students.length}</p>
                 <div className="mt-4 text-primary">Click to view details →</div>
               </div>
             ))}
@@ -710,7 +727,7 @@ const SuperAdminDashboard = () => {
                 <p className="text-2xl font-bold text-green-600">
                   +
                   {
-                    SUPER_ADMIN_DATA.branchData[selectedBranch].stats
+                    branches.branchData[selectedBranch].stats
                       .totalMerits
                   }
                 </p>
@@ -720,7 +737,7 @@ const SuperAdminDashboard = () => {
                 <p className="text-2xl font-bold text-red-600">
                   -
                   {
-                    SUPER_ADMIN_DATA.branchData[selectedBranch].stats
+                    branches.branchData[selectedBranch].stats
                       .totalViolations
                   }
                 </p>
@@ -729,7 +746,7 @@ const SuperAdminDashboard = () => {
                 <h3 className="text-sm text-gray-600">Active Students</h3>
                 <p className="text-2xl font-bold text-primary">
                   {
-                    SUPER_ADMIN_DATA.branchData[selectedBranch].stats
+                    branches.branchData[selectedBranch].stats
                       .activeStudents
                   }
                 </p>
@@ -738,7 +755,7 @@ const SuperAdminDashboard = () => {
                 <h3 className="text-sm text-gray-600">Teachers</h3>
                 <p className="text-2xl font-bold text-primary">
                   {
-                    SUPER_ADMIN_DATA.branchData[selectedBranch].stats
+                    branches.branchData[selectedBranch].stats
                       .teacherCount
                   }
                 </p>
@@ -756,7 +773,7 @@ const SuperAdminDashboard = () => {
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={
-                        SUPER_ADMIN_DATA.branchData[selectedBranch].monthlyTrend
+                        branches.branchData[selectedBranch].monthlyTrend
                       }
                     >
                       <CartesianGrid strokeDasharray="3 3" />
@@ -788,7 +805,7 @@ const SuperAdminDashboard = () => {
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart
                       data={
-                        SUPER_ADMIN_DATA.branchData[selectedBranch]
+                        branches.branchData[selectedBranch]
                           .classPerformance
                       }
                     >
@@ -829,7 +846,7 @@ const SuperAdminDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {SUPER_ADMIN_DATA.branchData[selectedBranch].teachers.map(
+                      {branches.branchData[selectedBranch].teachers.map(
                         (teacher) => (
                           <tr key={teacher.id} className="border-b">
                             <td className="px-4 py-3">{teacher.name}</td>
@@ -848,7 +865,7 @@ const SuperAdminDashboard = () => {
                   <PaginationControls
                     currentPage={currentPage}
                     totalPages={Math.ceil(
-                      SUPER_ADMIN_DATA.branchData[selectedBranch].teachers
+                      branches.branchData[selectedBranch].teachers
                         .length / itemsPerPage
                     )}
                     onPageChange={setCurrentPage}
@@ -884,7 +901,7 @@ const SuperAdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {SUPER_ADMIN_DATA.branchData[
+                    {branches.branchData[
                       selectedBranch
                     ].recentActivity.map((record) => (
                       <tr key={record.id} className="border-b">
@@ -923,7 +940,7 @@ const SuperAdminDashboard = () => {
                 <PaginationControls
                   currentPage={currentPage}
                   totalPages={Math.ceil(
-                    SUPER_ADMIN_DATA.branchData[selectedBranch].recentActivity
+                    branches.branchData[selectedBranch].recentActivity
                       .length / itemsPerPage
                   )}
                   onPageChange={setCurrentPage}
@@ -964,7 +981,7 @@ const SuperAdminDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {SUPER_ADMIN_DATA.branchData[
+                      {branches.branchData[
                         selectedBranch
                       ].topStudents.map((student, index) => (
                         <tr key={student.id} className="border-b">
@@ -989,7 +1006,7 @@ const SuperAdminDashboard = () => {
                   <PaginationControls
                     currentPage={currentPage}
                     totalPages={Math.ceil(
-                      SUPER_ADMIN_DATA.branchData[selectedBranch].topStudents
+                      branches.branchData[selectedBranch].topStudents
                         .length / itemsPerPage
                     )}
                     onPageChange={setCurrentPage}
@@ -1021,7 +1038,7 @@ const SuperAdminDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {SUPER_ADMIN_DATA.branchData[
+                      {branches.branchData[
                         selectedBranch
                       ].classPerformance.map((classData) => (
                         <tr key={classData.class} className="border-b">

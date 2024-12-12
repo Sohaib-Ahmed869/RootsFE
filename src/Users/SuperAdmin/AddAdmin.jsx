@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BiPlus } from "react-icons/bi";
 import logo from "../../assets/logo.png";
+import { BranchService } from "../../../services/branchService";
+import { AuthService } from "../../../services/authService";
 
 const AddAdmin = () => {
   const [admin, setAdmin] = useState({
@@ -8,6 +10,10 @@ const AddAdmin = () => {
     adminEmail: "",
     adminPassword: "",
     adminBranch: "",
+    cnic: "",
+    address: "",
+    contactNumber: "",
+    
   });
 
   const [branches, setBranches] = useState([
@@ -26,8 +32,28 @@ const AddAdmin = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(admin);
+    AuthService.registerBranchAdmin(
+      admin.adminName,
+      admin.adminEmail,
+      admin.adminPassword,
+      admin.cnic,
+      admin.adminBranch,
+      admin.address,
+      admin.contactNumber
+
+    )
   };
+  useEffect(() => {
+    // Fetch branches
+    const fetchBranches = async () => {
+      const response = await BranchService.getAllBranches();
+     
+      setBranches(response.data.branches);
+    };
+    fetchBranches();
+  }
+  , []);
+
 
   return (
     <div className="flex flex-col justify-center items-center p-5 lg:p-10">
@@ -64,6 +90,32 @@ const AddAdmin = () => {
             value={admin.adminPassword}
             onChange={handleChange}
           />
+          <label>CNIC</label>
+          <input
+            type="text"
+            name="cnic"
+            className="input input-bordered"
+            value={admin.cnic}
+            onChange={handleChange}
+          />
+          <label>Address</label>
+          <input
+            type="text"
+            name="address"
+            className="input input-bordered"
+            value={admin.address}
+            onChange={handleChange}
+          />
+
+          <label>Contact Number</label>
+          <input
+            type="text"
+            name="contactNumber"
+            className="input input-bordered"
+            value={admin.contactNumber}
+            onChange={handleChange}
+          />
+          
           <label>Branch</label>
           <select
             name="adminBranch"
@@ -73,8 +125,8 @@ const AddAdmin = () => {
           >
             <option value="">Select Branch</option>
             {branches.map((branch, index) => (
-              <option key={index} value={branch}>
-                {branch}
+              <option key={index} value={branch._id}>
+                {branch.name}
               </option>
             ))}
           </select>
