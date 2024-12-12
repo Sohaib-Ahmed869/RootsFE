@@ -74,8 +74,8 @@ export class BranchService {
    * @param {string} student_id - Student ID
    * @param {string} new_class_id - New class ID
    */
-  static async changeStudentClass(student_id, new_class_id) {
-    return axios.put(`${BASE_URL}/branch/class/change-student`, { student_id, new_class_id }, this.getAuthHeaders());
+  static async changeStudentClass(student_id, new_class_name) {
+    return axios.put(`${BASE_URL}/branch/class/change-student`, { student_id, new_class_name }, this.getAuthHeaders());
   }
 
   /**
@@ -101,7 +101,10 @@ export class BranchService {
     }, this.getAuthHeaders());
 
   }
-  stat
+  static async getBranchTeachers(){
+    return axios.get(`${BASE_URL}/branch/teacher/data`, this.getAuthHeaders());
+  }
+
 
   /**
    * Get Recent activy of a branch
@@ -128,5 +131,8 @@ export class BranchService {
   static getBranchClasses(branch_id){
     return axios.get(`${BASE_URL}/branch/classes/${branch_id}`, this.getAuthHeaders());
   } 
+  static async getBranchStudents(){
+    return axios.get(`${BASE_URL}/branch/student/data`, this.getAuthHeaders());
+  }
   
 }

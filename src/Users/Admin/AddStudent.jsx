@@ -273,10 +273,17 @@ const StudentsAdmin = () => {
     // Here you would typically make an API call to update the class
     console.log(
       "Changing class for student:",
-      studentToUpdate.name,
+      studentToUpdate.id,
       "to:",
       e.target.class.value
     );
+    BranchService.changeStudentClass(studentToUpdate.id, e.target.class.value).then((response) => {
+      console.log(response);
+      alert("Class changed successfully");
+    }
+    ).catch((error) => {
+      console.log(error);
+    });
 
     setShowChangeClassModal(false);
     setStudentToUpdate(null);

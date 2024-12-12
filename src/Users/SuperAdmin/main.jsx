@@ -17,6 +17,7 @@ import {
 import { LogOut, Search, Download, Filter, ChevronDown } from "lucide-react";
 import { BranchService } from "../../../services/branchService";
 // Sample data structure
+import Papa from "papaparse";
 const SUPER_ADMIN_DATA = {
   branches: [
     {
@@ -614,6 +615,50 @@ const SuperAdminDashboard = () => {
     console.log(selectedBranch);
   }, [selectedBranch]);
 
+  const exportCSV = (data, filename) => {
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", filename);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportCSV = () => {
+    if (currentView === "teachers") {
+      const data = branches.branchData[selectedBranch].teachers.map((teacher) => ({
+        Name: teacher.name,
+        Subject: teacher.subject,
+        "Merits Awarded": teacher.meritsAwarded,
+        Violations: teacher.violations,
+      }));
+      exportCSV(data, "teachers.csv");
+    } else if (currentView === "students") {
+      const data = branches.branchData[selectedBranch].topStudents.map((student, index) => ({
+        Rank: index + 1,
+        Name: student.name,
+        Class: student.class,
+        "Merit Points": student.points,
+        Violations: 0, // Assuming violations are not provided in the data
+        "Net Points": student.points,
+      }));
+      exportCSV(data, "students.csv");
+    } else if (currentView === "classes") {
+      const data = branches.branchData[selectedBranch].classPerformance.map((classData) => ({
+        Class: classData.class,
+        "Total Students": 30, // Assuming a fixed number of students
+        "Merit Points": classData.merits,
+        Violations: classData.violations,
+        "Net Points": classData.merits - classData.violations,
+        "Average Points": ((classData.merits - classData.violations) / 30).toFixed(1),
+      }));
+      exportCSV(data, "classes.csv");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -879,7 +924,7 @@ const SuperAdminDashboard = () => {
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">Recent Activity</h3>
                 <div className="flex space-x-2">
-                  <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                  <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" onClick={handleExportCSV}>
                     Export CSV
                   </button>
                   <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary">
@@ -922,7 +967,7 @@ const SuperAdminDashboard = () => {
                           </span>
                         </td>
                         <td className="px-4 py-3">{record.reason}</td>
-                        <td className="px-4 py-3">{record.teacher}</td>
+                        <td className="px-4 py-3">{record.teacher?record.teacher : record.admin}</td>
                         <td
                           className={`px-4 py-3 text-right font-bold ${
                             record.type === "merit"

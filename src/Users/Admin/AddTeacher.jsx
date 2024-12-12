@@ -10,6 +10,7 @@ import {
   Phone,
 } from "lucide-react";
 import { AuthService } from "../../../services/authService";
+import { BranchService } from "../../../services/branchService";
 
 const TeacherManagement = () => {
   const [teachers, setTeachers] = useState([]);
@@ -42,7 +43,7 @@ const TeacherManagement = () => {
   const fetchTeachers = async () => {
     try {
       setLoading(true);
-      const response = await AuthService.getAllUsers("teacher");
+      const response = await BranchService.getBranchTeachers();
       setTeachers(response.data);
       setError(null);
     } catch (err) {

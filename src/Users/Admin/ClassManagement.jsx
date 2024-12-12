@@ -38,7 +38,7 @@ const ClassManagement = () => {
       try {
         const [branchResponse, teachersResponse] = await Promise.all([
           AuthService.getAdminBranch(),
-          AuthService.getAllUsers("teacher"),
+          BranchService.getBranchTeachers(),
         ]);
         setBranchId(branchResponse.data._id);
         setTeachers(teachersResponse.data);
