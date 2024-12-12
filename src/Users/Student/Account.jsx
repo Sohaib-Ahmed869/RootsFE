@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { AuthService } from "../../../services/authService";
 
 // Dummy Data for Fees
 const FEES_DATA = [
@@ -76,12 +77,7 @@ const PasswordUpdate = () => {
       setError("New passwords do not match");
       return;
     }
-
-    if (newPassword.length < 8) {
-      setError("Password must be at least 8 characters long");
-      return;
-    }
-
+    AuthService.updatePassword(newPassword);
     // Simulated success
     setSuccess("Password updated successfully");
     setCurrentPassword("");

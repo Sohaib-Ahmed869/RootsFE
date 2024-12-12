@@ -222,6 +222,9 @@ export class AuthService {
   {
     return axios.get(`${BASE_URL}/auth/student-dash2`, this.getAuthHeaders());
   }
+  static async updatePassword(password){
+    return axios.put(`${BASE_URL}/auth/update-student-pass`, {password}, this.getAuthHeaders());
+  }
 
   static async registerParent(
     name,
