@@ -1,6 +1,6 @@
 // authService.js
-import axios from 'axios';
-import { BASE_URL } from './config';
+import axios from "axios";
+import { BASE_URL } from "./config";
 
 /**
  * Authentication Service
@@ -8,11 +8,11 @@ import { BASE_URL } from './config';
  */
 export class AuthService {
   static getAuthHeaders() {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     return {
       headers: {
-        auth: `${token}`
-      }
+        auth: `${token}`,
+      },
     };
   }
 
@@ -25,11 +25,11 @@ export class AuthService {
    */
   static async login(role, email, password) {
     return fetch(`${BASE_URL}/auth/login/${role}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ role, email, password })
+      body: JSON.stringify({ role, email, password }),
     });
   }
 
@@ -43,7 +43,7 @@ export class AuthService {
     return axios.post(`${BASE_URL}/auth/register/superadmin`, {
       name,
       email,
-      password
+      password,
     });
   }
 
@@ -57,16 +57,28 @@ export class AuthService {
    * @param {string} address - Admin address
    * @param {string} contactNumber - Admin contact number
    */
-  static async registerBranchAdmin(name, email, password, cnic, branch_id, address = '', contactNumber = '') {
-    return axios.post(`${BASE_URL}/auth/register/branchadmin`, {
-      name,
-      email,
-      password,
-      cnic,
-      branch_id,
-      address,
-      contactNumber
-    }, this.getAuthHeaders());
+  static async registerBranchAdmin(
+    name,
+    email,
+    password,
+    cnic,
+    branch_id,
+    address = "",
+    contactNumber = ""
+  ) {
+    return axios.post(
+      `${BASE_URL}/auth/register/branchadmin`,
+      {
+        name,
+        email,
+        password,
+        cnic,
+        branch_id,
+        address,
+        contactNumber,
+      },
+      this.getAuthHeaders()
+    );
   }
 
   /**
@@ -80,17 +92,30 @@ export class AuthService {
    * @param {string} address - Teacher address
    * @param {string} contactNumber - Teacher contact number
    */
-  static async registerTeacher(name, email, password, qualification, branch_id, cnic, address = '', contactNumber = '') {
-    return axios.post(`${BASE_URL}/auth/register/teacher`, {
-      name,
-      email,
-      password,
-      qualification,
-      branch_id,
-      cnic,
-      address,
-      contactNumber
-    }, this.getAuthHeaders());
+  static async registerTeacher(
+    name,
+    email,
+    password,
+    qualification,
+    branch_id,
+    cnic,
+    address = "",
+    contactNumber = ""
+  ) {
+    return axios.post(
+      `${BASE_URL}/auth/register/teacher`,
+      {
+        name,
+        email,
+        password,
+        qualification,
+        branch_id,
+        cnic,
+        address,
+        contactNumber,
+      },
+      this.getAuthHeaders()
+    );
   }
 
   /**
@@ -108,22 +133,35 @@ export class AuthService {
    * @param {number} age - Student age
    */
   static async registerStudent(
-    name, email, password, rollNumber, dateOfBirth, grade, branch_id, 
-    cnic, address = '', contactNumber = '', age = null
+    name,
+    email,
+    password,
+    rollNumber,
+    dateOfBirth,
+    grade,
+    branch_id,
+    cnic,
+    address = "",
+    contactNumber = "",
+    age = null
   ) {
-    return axios.post(`${BASE_URL}/auth/register/student`, {
-      name,
-      email,
-      password,
-      rollNumber,
-      dateOfBirth,
-      grade,
-      branch_id,
-      cnic,
-      address,
-      contactNumber,
-      age
-    }, this.getAuthHeaders());
+    return axios.post(
+      `${BASE_URL}/auth/register/student`,
+      {
+        name,
+        email,
+        password,
+        rollNumber,
+        dateOfBirth,
+        grade,
+        branch_id,
+        cnic,
+        address,
+        contactNumber,
+        age,
+      },
+      this.getAuthHeaders()
+    );
   }
 
   /**
@@ -150,7 +188,11 @@ export class AuthService {
    * @param {Object} updates - Fields to update
    */
   static async updateUser(role, id, updates) {
-    return axios.put(`${BASE_URL}/auth/${role}/${id}`, updates, this.getAuthHeaders());
+    return axios.put(
+      `${BASE_URL}/auth/${role}/${id}`,
+      updates,
+      this.getAuthHeaders()
+    );
   }
 
   /**
@@ -159,6 +201,34 @@ export class AuthService {
    * @param {string} id - User ID
    */
   static async deleteUser(role, id) {
-    return axios.delete(`${BASE_URL}/auth/${role}/${id}`, this.getAuthHeaders());
+    return axios.delete(
+      `${BASE_URL}/auth/${role}/${id}`,
+      this.getAuthHeaders()
+    );
+  }
+
+  static async registerParent(
+    name,
+    email,
+    password,
+    student_id,
+    cnic,
+    address = "",
+    contactNumber = "",
+  ) {
+    const children = [student_id];
+    return axios.post(
+      `${BASE_URL}/auth/register/parent`,
+      {
+        name,
+        email,
+        password,
+        cnic,
+        address,
+        contactNumber,
+        children,
+      },
+      this.getAuthHeaders()
+    );
   }
 }

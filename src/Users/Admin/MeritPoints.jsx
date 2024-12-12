@@ -1,85 +1,93 @@
-import React, { useState } from 'react';
-import { Plus, AlertCircle, Edit2, Trash2 } from 'lucide-react';
-
-// Initial dummy data for merit/demerit rules
-const INITIAL_RULES = [
-  { 
-    id: 1, 
-    category: 'Academic Excellence',
-    type: 'merit',
-    reason: 'Outstanding performance in test/exam',
-    points: 5,
-    description: 'Awarded for scoring above 90% in any major examination',
-    isActive: true
-  },
-  { 
-    id: 2, 
-    category: 'Discipline',
-    type: 'demerit',
-    reason: 'Late arrival to class',
-    points: -2,
-    description: 'Deducted for arriving more than 10 minutes late without valid reason',
-    isActive: true
-  }
-];
-
-const CATEGORIES = [
-  'Academic Excellence',
-  'Discipline',
-  'Extra Curricular',
-  'Sports',
-  'Leadership',
-  'Community Service',
-  'Other'
-];
+import React, { useState, useEffect } from "react";
+import { Plus, Edit2, Trash2, Loader, AlertCircle } from "lucide-react";
+import { MeritService } from "../../../services/meritService";
 
 const MeritRulesManagement = () => {
-  const [rules, setRules] = useState(INITIAL_RULES);
+  const [rules, setRules] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingRule, setEditingRule] = useState(null);
-  const [filterCategory, setFilterCategory] = useState('all');
-  const [filterType, setFilterType] = useState('all');
-  
+  const [filterType, setFilterType] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [newRule, setNewRule] = useState({
-    category: '',
-    type: 'merit',
-    reason: '',
+    reason: "",
     points: 0,
-    description: '',
-    isActive: true
   });
 
+  // Fetch both merit and demerit templates
+  const fetchTemplates = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [meritResponse, demeritResponse] = await Promise.all([
+        MeritService.getMeritTemplates(),
+        MeritService.getDemeritTemplates(),
+      ]);
+
+      // Combine and format the responses
+      const meritTemplates = meritResponse.data.map((template) => ({
+        ...template,
+        points: Math.abs(template.points), // Ensure positive points for merits
+      }));
+
+      const demeritTemplates = demeritResponse.data.map((template) => ({
+        ...template,
+        points: -Math.abs(template.points), // Ensure negative points for demerits
+      }));
+
+      setRules([...meritTemplates, ...demeritTemplates]);
+    } catch (err) {
+      setError("Failed to fetch templates. Please try again later.");
+      console.error("Error fetching templates:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
   const getFilteredRules = () => {
-    return rules.filter(rule => {
-      const categoryMatch = filterCategory === 'all' || rule.category === filterCategory;
-      const typeMatch = filterType === 'all' || rule.type === filterType;
-      return categoryMatch && typeMatch;
+    return rules.filter((rule) => {
+      if (filterType === "all") return true;
+      return filterType === "merit" ? rule.points > 0 : rule.points < 0;
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingRule) {
-      // Update existing rule
-      setRules(rules.map(rule => 
-        rule.id === editingRule.id ? { ...newRule, id: editingRule.id } : rule
-      ));
-    } else {
-      // Add new rule
-      setRules([...rules, { ...newRule, id: rules.length + 1 }]);
+    try {
+      const isMerit = newRule.points > 0;
+      const points = Math.abs(newRule.points); // Send absolute value for both types
+
+      if (isMerit) {
+        await MeritService.createMeritTemplate(points, newRule.reason);
+      } else {
+        await MeritService.createDemeritTemplate(points, newRule.reason);
+      }
+
+      // Refresh the templates after creating new one
+      await fetchTemplates();
+
+      // Reset form and close modal
+      setNewRule({
+        reason: "",
+        points: 0,
+      });
+      setEditingRule(null);
+      setShowAddModal(false);
+    } catch (error) {
+      console.error("Error creating template:", error);
+      alert(
+        `Failed to create ${
+          newRule.points > 0 ? "merit" : "demerit"
+        } template. Please try again.`
+      );
     }
-    
-    // Reset form and close modal
-    setNewRule({
-      category: '',
-      type: 'merit',
-      reason: '',
-      points: 0,
-      description: '',
-      isActive: true
-    });
-    setEditingRule(null);
-    setShowAddModal(false);
   };
 
   const handleEdit = (rule) => {
@@ -88,11 +96,51 @@ const MeritRulesManagement = () => {
     setShowAddModal(true);
   };
 
-  const handleDelete = (ruleId) => {
-    if (confirm('Are you sure you want to delete this rule?')) {
-      setRules(rules.filter(rule => rule.id !== ruleId));
+  const handleDelete = async (ruleId, points) => {
+    if (confirm("Are you sure you want to delete this rule?")) {
+      try {
+        const isMerit = points > 0;
+
+        if (isMerit) {
+          await MeritService.deleteMeritTemplate(ruleId);
+        } else {
+          await MeritService.deleteDemeritTemplate(ruleId);
+        }
+
+        // Refresh the templates after deletion
+        await fetchTemplates();
+      } catch (error) {
+        console.error("Error deleting template:", error);
+        alert(
+          `Failed to delete ${
+            points > 0 ? "merit" : "demerit"
+          } template. Please try again.`
+        );
+      }
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <div className="flex items-center gap-2">
+          <Loader className="w-6 h-6 animate-spin" />
+          <span>Loading templates...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <div className="text-red-500 flex items-center gap-2">
+          <AlertCircle className="w-6 h-6" />
+          <span>{error}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -100,19 +148,19 @@ const MeritRulesManagement = () => {
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Merit Point Rules</h1>
-            <p className="text-gray-600">Manage merit and demerit point rules</p>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">
+              Merit Point Rules
+            </h1>
+            <p className="text-gray-600">
+              Manage merit and demerit point rules
+            </p>
           </div>
           <button
             onClick={() => {
               setEditingRule(null);
               setNewRule({
-                category: '',
-                type: 'merit',
-                reason: '',
+                reason: "",
                 points: 0,
-                description: '',
-                isActive: true
               });
               setShowAddModal(true);
             }}
@@ -127,20 +175,9 @@ const MeritRulesManagement = () => {
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category Filter</label>
-              <select
-                value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="select select-bordered w-full"
-              >
-                <option value="all">All Categories</option>
-                {CATEGORIES.map(category => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
-              </select>
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type Filter</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Type Filter
+              </label>
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
@@ -156,70 +193,66 @@ const MeritRulesManagement = () => {
 
         {/* Rules Table */}
         <div className="bg-white rounded-lg shadow-md p-6 overflow-x-auto">
-          <table className="table w-full">
-            <thead>
-              <tr>
-                <th>Category</th>
-                <th>Type</th>
-                <th>Reason</th>
-                <th>Points</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {getFilteredRules().map(rule => (
-                <tr key={rule.id}>
-                  <td>{rule.category}</td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        rule.type === 'merit' ? 'badge-success' : 'badge-error'
-                      }`}
-                    >
-                      {rule.type}
-                    </span>
-                  </td>
-                  <td>
-                    <div>
-                      <p className="font-medium">{rule.reason}</p>
-                      <p className="text-sm text-gray-500">{rule.description}</p>
-                    </div>
-                  </td>
-                  <td>
-                    <span className={rule.points >= 0 ? 'text-green-600' : 'text-red-600'}>
-                      {rule.points >= 0 ? '+' : ''}{rule.points}
-                    </span>
-                  </td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        rule.isActive ? 'badge-success' : 'badge-warning'
-                      }`}
-                    >
-                      {rule.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleEdit(rule)}
-                        className="btn btn-sm btn-ghost"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(rule.id)}
-                        className="btn btn-sm btn-ghost text-red-500"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+          {getFilteredRules().length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No templates found. Add a new one to get started.
+            </div>
+          ) : (
+            <table className="table w-full">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Reason</th>
+                  <th>Points</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {getFilteredRules().map((rule) => (
+                  <tr key={rule.id}>
+                    <td>
+                      <span
+                        className={`badge ${
+                          rule.points > 0 ? "badge-success" : "badge-error"
+                        }`}
+                      >
+                        {rule.points > 0 ? "merit" : "demerit"}
+                      </span>
+                    </td>
+                    <td>
+                      <p className="font-medium">{rule.reason}</p>
+                    </td>
+                    <td>
+                      <span
+                        className={
+                          rule.points >= 0 ? "text-green-600" : "text-red-600"
+                        }
+                      >
+                        {rule.points >= 0 ? "+" : ""}
+                        {rule.points}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="flex gap-2">
+                        {/* <button
+                          onClick={() => handleEdit(rule)}
+                          className="btn btn-sm btn-ghost"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button> */}
+                        <button
+                          onClick={() => handleDelete(rule._id, rule.points)}
+                          className="btn btn-sm btn-ghost text-red-500"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {/* Add/Edit Rule Modal */}
@@ -227,38 +260,22 @@ const MeritRulesManagement = () => {
           <dialog open className="modal">
             <div className="modal-box">
               <h3 className="font-bold text-lg mb-4">
-                {editingRule ? 'Edit Rule' : 'Add New Rule'}
+                {editingRule ? "Edit Rule" : "Add New Rule"}
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="label">
-                    <span className="label-text">Category</span>
-                  </label>
-                  <select
-                    value={newRule.category}
-                    onChange={(e) => setNewRule({...newRule, category: e.target.value})}
-                    className="select select-bordered w-full"
-                    required
-                  >
-                    <option value="">Select Category</option>
-                    {CATEGORIES.map(category => (
-                      <option key={category} value={category}>{category}</option>
-                    ))}
-                  </select>
-                </div>
-
                 <div>
                   <label className="label">
                     <span className="label-text">Type</span>
                   </label>
                   <select
-                    value={newRule.type}
+                    value={newRule.points > 0 ? "merit" : "demerit"}
                     onChange={(e) => {
-                      const isDemerits = e.target.value === 'demerit';
+                      const isDemerits = e.target.value === "demerit";
                       setNewRule({
                         ...newRule,
-                        type: e.target.value,
-                        points: isDemerits ? Math.abs(newRule.points) * -1 : Math.abs(newRule.points)
+                        points: isDemerits
+                          ? Math.abs(newRule.points) * -1
+                          : Math.abs(newRule.points),
                       });
                     }}
                     className="select select-bordered w-full"
@@ -276,7 +293,9 @@ const MeritRulesManagement = () => {
                   <input
                     type="text"
                     value={newRule.reason}
-                    onChange={(e) => setNewRule({...newRule, reason: e.target.value})}
+                    onChange={(e) =>
+                      setNewRule({ ...newRule, reason: e.target.value })
+                    }
                     className="input input-bordered w-full"
                     required
                   />
@@ -293,7 +312,7 @@ const MeritRulesManagement = () => {
                       const points = parseInt(e.target.value) || 0;
                       setNewRule({
                         ...newRule,
-                        points: newRule.type === 'demerit' ? points * -1 : points
+                        points: newRule.points < 0 ? points * -1 : points,
                       });
                     }}
                     className="input input-bordered w-full"
@@ -302,34 +321,9 @@ const MeritRulesManagement = () => {
                   />
                 </div>
 
-                <div>
-                  <label className="label">
-                    <span className="label-text">Description</span>
-                  </label>
-                  <textarea
-                    value={newRule.description}
-                    onChange={(e) => setNewRule({...newRule, description: e.target.value})}
-                    className="textarea textarea-bordered w-full"
-                    rows="3"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="label cursor-pointer">
-                    <span className="label-text">Active</span>
-                    <input
-                      type="checkbox"
-                      checked={newRule.isActive}
-                      onChange={(e) => setNewRule({...newRule, isActive: e.target.checked})}
-                      className="checkbox"
-                    />
-                  </label>
-                </div>
-
                 <div className="modal-action">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="btn btn-ghost"
                     onClick={() => {
                       setShowAddModal(false);
@@ -338,11 +332,11 @@ const MeritRulesManagement = () => {
                   >
                     Cancel
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="btn btn-primary bg-[#800000] hover:bg-[#600000] text-white"
                   >
-                    {editingRule ? 'Update Rule' : 'Add Rule'}
+                    {editingRule ? "Update Rule" : "Add Rule"}
                   </button>
                 </div>
               </form>

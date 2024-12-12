@@ -1,63 +1,44 @@
-import React, { useState } from 'react';
-import { Plus, Search, Edit2, Eye, EyeOff, Mail, Phone } from 'lucide-react';
-
-// Dummy data for teachers
-const INITIAL_TEACHERS = [
-  {
-    id: 1,
-    name: "Dr. Sarah Johnson",
-    email: "sarah.johnson@school.com",
-    phone: "9876543210",
-    subject: "Mathematics",
-    qualification: "Ph.D. Mathematics",
-    joiningDate: "2023-06-15",
-    assignedClasses: ["10-A", "10-B"],
-    status: "active"
-  },
-  {
-    id: 2,
-    name: "Prof. Michael Smith",
-    email: "michael.smith@school.com",
-    phone: "9876543211",
-    subject: "Science",
-    qualification: "M.Sc. Physics",
-    joiningDate: "2023-07-01",
-    assignedClasses: ["9-A", "9-B"],
-    status: "active"
-  }
-];
-
-const SUBJECTS = [
-  "Mathematics",
-  "Science",
-  "English",
-  "History",
-  "Geography",
-  "Computer Science",
-  "Physics",
-  "Chemistry",
-  "Biology"
-];
+import React, { useState, useEffect } from 'react';
+import { Plus, Search, Loader, AlertCircle, Eye, EyeOff, Mail, Phone } from 'lucide-react';
+import { AuthService } from '../../../services/authService';
 
 const TeacherManagement = () => {
-  const [teachers, setTeachers] = useState(INITIAL_TEACHERS);
+  const [teachers, setTeachers] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [editingTeacher, setEditingTeacher] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
   const [newTeacher, setNewTeacher] = useState({
     name: '',
     email: '',
-    phone: '',
-    subject: '',
-    qualification: '',
-    joiningDate: '',
-    assignedClasses: [],
     password: '',
-    confirmPassword: '',
-    status: 'active'
+    qualification: '',
+    branch_id: '', // You'll need to get this from your app's context or props
+    cnic: '',
+    address: '',
+    contactNumber: ''
   });
+
+  // Fetch teachers on component mount
+  useEffect(() => {
+    fetchTeachers();
+  }, []);
+
+  const fetchTeachers = async () => {
+    try {
+      setLoading(true);
+      const response = await AuthService.getAllUsers('teacher');
+      setTeachers(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch teachers. Please try again later.');
+      console.error('Error fetching teachers:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getFilteredTeachers = () => {
     if (!searchQuery) return teachers;
@@ -66,7 +47,7 @@ const TeacherManagement = () => {
     return teachers.filter(teacher => 
       teacher.name.toLowerCase().includes(query) ||
       teacher.email.toLowerCase().includes(query) ||
-      teacher.subject.toLowerCase().includes(query)
+      teacher.qualification.toLowerCase().includes(query)
     );
   };
 
@@ -78,48 +59,63 @@ const TeacherManagement = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (newTeacher.password !== newTeacher.confirmPassword) {
-      alert("Passwords don't match!");
-      return;
-    }
+    try {
+      await AuthService.registerTeacher(
+        newTeacher.name,
+        newTeacher.email,
+        newTeacher.password,
+        newTeacher.qualification,
+        newTeacher.branch_id,
+        newTeacher.cnic,
+        newTeacher.address,
+        newTeacher.contactNumber
+      );
 
-    if (editingTeacher) {
-      setTeachers(teachers.map(teacher =>
-        teacher.id === editingTeacher.id ? { ...newTeacher, id: editingTeacher.id } : teacher
-      ));
-    } else {
-      setTeachers([...teachers, { ...newTeacher, id: teachers.length + 1 }]);
-    }
+      // Refresh teacher list
+      await fetchTeachers();
 
-    // Reset form and close modal
-    setNewTeacher({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      qualification: '',
-      joiningDate: '',
-      assignedClasses: [],
-      password: '',
-      confirmPassword: '',
-      status: 'active'
-    });
-    setEditingTeacher(null);
-    setShowModal(false);
+      // Reset form and close modal
+      setNewTeacher({
+        name: '',
+        email: '',
+        password: '',
+        qualification: '',
+        branch_id: '',
+        cnic: '',
+        address: '',
+        contactNumber: ''
+      });
+      setShowModal(false);
+    } catch (error) {
+      console.error('Error creating teacher:', error);
+      alert('Failed to create teacher. Please try again.');
+    }
   };
 
-  const handleEdit = (teacher) => {
-    setEditingTeacher(teacher);
-    setNewTeacher({
-      ...teacher,
-      password: '',
-      confirmPassword: ''
-    });
-    setShowModal(true);
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <div className="flex items-center gap-2">
+          <Loader className="w-6 h-6 animate-spin" />
+          <span>Loading teachers...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <div className="text-red-500 flex items-center gap-2">
+          <AlertCircle className="w-6 h-6" />
+          <span>{error}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -131,22 +127,7 @@ const TeacherManagement = () => {
             <p className="text-gray-600">Manage and monitor teaching staff</p>
           </div>
           <button
-            onClick={() => {
-              setEditingTeacher(null);
-              setNewTeacher({
-                name: '',
-                email: '',
-                phone: '',
-                subject: '',
-                qualification: '',
-                joiningDate: '',
-                assignedClasses: [],
-                password: '',
-                confirmPassword: '',
-                status: 'active'
-              });
-              setShowModal(true);
-            }}
+            onClick={() => setShowModal(true)}
             className="btn btn-primary bg-[#800000] hover:bg-[#600000] text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -161,7 +142,7 @@ const TeacherManagement = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search teachers by name, email, or subject..."
+              placeholder="Search teachers by name, email, or qualification..."
               className="input input-bordered w-full pr-10"
             />
             <Search className="absolute right-3 top-3 text-gray-400" size={20} />
@@ -175,19 +156,16 @@ const TeacherManagement = () => {
               <tr>
                 <th>Name</th>
                 <th>Contact Info</th>
-                <th>Subject</th>
                 <th>Qualification</th>
-                <th>Assigned Classes</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>CNIC</th>
+                <th>Address</th>
               </tr>
             </thead>
             <tbody>
               {getFilteredTeachers().map(teacher => (
-                <tr key={teacher.id}>
+                <tr key={teacher._id}>
                   <td>
                     <div className="font-medium">{teacher.name}</div>
-                    <div className="text-sm text-gray-500">Joined: {teacher.joiningDate}</div>
                   </td>
                   <td>
                     <div className="flex items-center gap-1">
@@ -196,49 +174,25 @@ const TeacherManagement = () => {
                     </div>
                     <div className="flex items-center gap-1 text-sm text-gray-500">
                       <Phone size={14} />
-                      <span>{teacher.phone}</span>
+                      <span>{teacher.contactNumber}</span>
                     </div>
                   </td>
-                  <td>{teacher.subject}</td>
                   <td>{teacher.qualification}</td>
-                  <td>
-                    <div className="flex flex-wrap gap-1">
-                      {teacher.assignedClasses.map(cls => (
-                        <span key={cls} className="badge badge-ghost">{cls}</span>
-                      ))}
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`badge ${
-                      teacher.status === 'active' ? 'badge-success' : 'badge-warning'
-                    }`}>
-                      {teacher.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      onClick={() => handleEdit(teacher)}
-                      className="btn btn-sm bg-[#800000] text-white hover:bg-[#600000]"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                  </td>
+                  <td>{teacher.cnic}</td>
+                  <td>{teacher.address}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        {/* Add/Edit Teacher Modal */}
+        {/* Add Teacher Modal */}
         {showModal && (
           <dialog open className="modal">
             <div className="modal-box w-11/12 max-w-3xl">
-              <h3 className="font-bold text-lg mb-4">
-                {editingTeacher ? 'Edit Teacher' : 'Add New Teacher'}
-              </h3>
+              <h3 className="font-bold text-lg mb-4">Add New Teacher</h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Personal Information */}
                   <div>
                     <label className="label">
                       <span className="label-text">Full Name</span>
@@ -269,12 +223,35 @@ const TeacherManagement = () => {
 
                   <div>
                     <label className="label">
-                      <span className="label-text">Phone Number</span>
+                      <span className="label-text">Password</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        value={newTeacher.password}
+                        onChange={handleInputChange}
+                        className="input input-bordered w-full pr-10"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-3 text-gray-400"
+                      >
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="label">
+                      <span className="label-text">CNIC</span>
                     </label>
                     <input
-                      type="tel"
-                      name="phone"
-                      value={newTeacher.phone}
+                      type="text"
+                      name="cnic"
+                      value={newTeacher.cnic}
                       onChange={handleInputChange}
                       className="input input-bordered w-full"
                       required
@@ -283,20 +260,16 @@ const TeacherManagement = () => {
 
                   <div>
                     <label className="label">
-                      <span className="label-text">Subject</span>
+                      <span className="label-text">Contact Number</span>
                     </label>
-                    <select
-                      name="subject"
-                      value={newTeacher.subject}
+                    <input
+                      type="tel"
+                      name="contactNumber"
+                      value={newTeacher.contactNumber}
                       onChange={handleInputChange}
-                      className="select select-bordered w-full"
+                      className="input input-bordered w-full"
                       required
-                    >
-                      <option value="">Select Subject</option>
-                      {SUBJECTS.map(subject => (
-                        <option key={subject} value={subject}>{subject}</option>
-                      ))}
-                    </select>
+                    />
                   </div>
 
                   <div>
@@ -313,111 +286,33 @@ const TeacherManagement = () => {
                     />
                   </div>
 
-                  <div>
+                  <div className="md:col-span-2">
                     <label className="label">
-                      <span className="label-text">Joining Date</span>
+                      <span className="label-text">Address</span>
                     </label>
-                    <input
-                      type="date"
-                      name="joiningDate"
-                      value={newTeacher.joiningDate}
+                    <textarea
+                      name="address"
+                      value={newTeacher.address}
                       onChange={handleInputChange}
-                      className="input input-bordered w-full"
+                      className="textarea textarea-bordered w-full"
+                      rows="3"
                       required
                     />
                   </div>
 
-                  {/* Password fields - only show if adding new teacher or resetting password */}
-                  <div>
-                    <label className="label">
-                      <span className="label-text">Password</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        name="password"
-                        value={newTeacher.password}
-                        onChange={handleInputChange}
-                        className="input input-bordered w-full pr-10"
-                        required={!editingTeacher}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-3 text-gray-400"
-                      >
-                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="label">
-                      <span className="label-text">Confirm Password</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        name="confirmPassword"
-                        value={newTeacher.confirmPassword}
-                        onChange={handleInputChange}
-                        className="input input-bordered w-full"
-                        required={!editingTeacher}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="label">
-                      <span className="label-text">Status</span>
-                    </label>
-                    <select
-                      name="status"
-                      value={newTeacher.status}
-                      onChange={handleInputChange}
-                      className="select select-bordered w-full"
-                      required
-                    >
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="label">
-                      <span className="label-text">Assigned Classes</span>
-                    </label>
-                    <select
-                      multiple
-                      name="assignedClasses"
-                      value={newTeacher.assignedClasses}
-                      onChange={(e) => {
-                        const values = Array.from(e.target.selectedOptions, option => option.value);
-                        setNewTeacher(prev => ({
-                          ...prev,
-                          assignedClasses: values
-                        }));
-                      }}
-                      className="select select-bordered w-full h-24"
-                      required
-                    >
-                      <option value="10-A">10-A</option>
-                      <option value="10-B">10-B</option>
-                      <option value="9-A">9-A</option>
-                      <option value="9-B">9-B</option>
-                    </select>
-                    <span className="text-xs text-gray-500">Hold Ctrl/Cmd to select multiple</span>
-                  </div>
+                  {/* Note: You'll need to add branch_id selection based on your app's requirements */}
+                  <input
+                    type="hidden"
+                    name="branch_id"
+                    value={newTeacher.branch_id}
+                  />
                 </div>
 
                 <div className="modal-action">
                   <button 
                     type="button" 
                     className="btn btn-ghost"
-                    onClick={() => {
-                      setShowModal(false);
-                      setEditingTeacher(null);
-                    }}
+                    onClick={() => setShowModal(false)}
                   >
                     Cancel
                   </button>
@@ -425,7 +320,7 @@ const TeacherManagement = () => {
                     type="submit" 
                     className="btn btn-primary bg-[#800000] hover:bg-[#600000] text-white"
                   >
-                    {editingTeacher ? 'Update Teacher' : 'Add Teacher'}
+                    Add Teacher
                   </button>
                 </div>
               </form>

@@ -1,68 +1,100 @@
-import React, { useState } from "react";
-import { Search, UserPlus, Plus, Users, Trash2, Edit2 } from "lucide-react";
-
-// Dummy data for parents
-const INITIAL_PARENTS = [
-  {
-    id: 1,
-    name: "Robert Smith",
-    email: "robert.smith@email.com",
-    phone: "9876543210",
-    occupation: "Engineer",
-    address: "123 Main St, City",
-    relation: "Father",
-    status: "active",
-  },
-  {
-    id: 2,
-    name: "Mary Johnson",
-    email: "mary.johnson@email.com",
-    phone: "9876543211",
-    occupation: "Doctor",
-    address: "456 Oak St, City",
-    relation: "Mother",
-    status: "active",
-  },
-];
-
-// Parent-Student relationships
-const INITIAL_RELATIONSHIPS = [
-  { parentId: 1, studentId: 1, relation: "Father" },
-  { parentId: 1, studentId: 2, relation: "Father" },
-  { parentId: 2, studentId: 1, relation: "Mother" },
-];
-
-// Getting students data from your existing ALL_STUDENTS object
-const ALL_STUDENTS = {
-  "10-A": [
-    { id: 1, rollNo: "101", name: "John Doe", class: "10-A" },
-    { id: 2, rollNo: "102", name: "Jane Smith", class: "10-A" },
-  ],
-  "10-B": [{ id: 3, rollNo: "201", name: "Sarah Williams", class: "10-B" }],
-};
+import React, { useState, useEffect } from "react";
+import { Search, UserPlus, Plus, Trash2, Edit2, Loader, AlertCircle } from "lucide-react";
+import { AuthService } from "../../../services/authService";
 
 const RELATIONS = ["Father", "Mother", "Guardian", "Step Parent", "Other"];
 
 const ParentManagement = () => {
-  const [parents, setParents] = useState(INITIAL_PARENTS);
-  const [relationships, setRelationships] = useState(INITIAL_RELATIONSHIPS);
+  const [parents, setParents] = useState([]);
+  const [students, setStudents] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showRelationshipModal, setShowRelationshipModal] = useState(false);
   const [selectedParent, setSelectedParent] = useState(null);
-  const [editingParent, setEditingParent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [newParent, setNewParent] = useState({
     name: "",
     email: "",
-    phone: "",
-    occupation: "",
+    password: "", // Added for registration
+    cnic: "", // Added as required by API
+    student_id: "", // Added as required by API
     address: "",
-    relation: "",
-    status: "active",
+    contactNumber: "",
+    relation: ""
   });
 
-  const [selectedStudents, setSelectedStudents] = useState([]);
+  // Fetch parents and students on component mount
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [parentsResponse, studentsResponse] = await Promise.all([
+        AuthService.getAllUsers('parent'),
+        AuthService.getAllUsers('student')
+      ]);
+
+      setParents(parentsResponse.data);
+      setStudents(studentsResponse.data);
+    } catch (err) {
+      setError('Failed to fetch data. Please try again later.');
+      console.error('Error fetching data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await AuthService.registerParent(
+        newParent.name,
+        newParent.email,
+        newParent.password,
+        newParent.student_id,
+        newParent.cnic,
+        newParent.address,
+        newParent.contactNumber,
+      );
+
+      // Refresh the parents list
+      await fetchData();
+      
+      // Reset form and close modal
+      setNewParent({
+        name: "",
+        email: "",
+        password: "",
+        cnic: "",
+        student_id: "",
+        address: "",
+        contactNumber: "",
+        relation: ""
+      });
+      setShowAddModal(false);
+    } catch (error) {
+      console.error('Error creating parent:', error);
+      alert('Failed to create parent. Please try again.');
+    }
+  };
+
+  const handleDelete = async (parentId) => {
+    if (confirm('Are you sure you want to delete this parent?')) {
+      try {
+        await AuthService.deleteUser('parent', parentId);
+        await fetchData();
+      } catch (error) {
+        console.error('Error deleting parent:', error);
+        alert('Failed to delete parent. Please try again.');
+      }
+    }
+  };
 
   const getFilteredParents = () => {
     if (!searchQuery) return parents;
@@ -72,75 +104,31 @@ const ParentManagement = () => {
       (parent) =>
         parent.name.toLowerCase().includes(query) ||
         parent.email.toLowerCase().includes(query) ||
-        parent.phone.includes(query)
+        (parent.contactNumber && parent.contactNumber.includes(query))
     );
   };
 
-  const getAllStudents = () => {
-    return Object.values(ALL_STUDENTS).flat();
-  };
-
-  const getParentStudents = (parentId) => {
-    const parentRelationships = relationships.filter(
-      (r) => r.parentId === parentId
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <div className="flex items-center gap-2">
+          <Loader className="w-6 h-6 animate-spin" />
+          <span>Loading data...</span>
+        </div>
+      </div>
     );
-    return getAllStudents().filter((student) =>
-      parentRelationships.some((r) => r.studentId === student.id)
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <div className="text-red-500 flex items-center gap-2">
+          <AlertCircle className="w-6 h-6" />
+          <span>{error}</span>
+        </div>
+      </div>
     );
-  };
-
-  const handleAddParent = (e) => {
-    e.preventDefault();
-
-    if (editingParent) {
-      setParents(
-        parents.map((parent) =>
-          parent.id === editingParent.id
-            ? { ...newParent, id: editingParent.id }
-            : parent
-        )
-      );
-    } else {
-      const newParentId = Math.max(...parents.map((p) => p.id)) + 1;
-      setParents([...parents, { ...newParent, id: newParentId }]);
-    }
-
-    setNewParent({
-      name: "",
-      email: "",
-      phone: "",
-      occupation: "",
-      address: "",
-      relation: "",
-      status: "active",
-    });
-    setEditingParent(null);
-    setShowAddModal(false);
-  };
-
-  const handleAddRelationships = (e) => {
-    e.preventDefault();
-
-    const newRelationships = selectedStudents.map((studentId) => ({
-      parentId: selectedParent.id,
-      studentId,
-      relation: selectedParent.relation,
-    }));
-
-    setRelationships([...relationships, ...newRelationships]);
-    setSelectedStudents([]);
-    setShowRelationshipModal(false);
-  };
-
-  const handleRemoveRelationship = (parentId, studentId) => {
-    if (confirm("Are you sure you want to remove this relationship?")) {
-      setRelationships(
-        relationships.filter(
-          (r) => !(r.parentId === parentId && r.studentId === studentId)
-        )
-      );
-    }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -148,18 +136,11 @@ const ParentManagement = () => {
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">
-              Parent Management
-            </h1>
-            <p className="text-gray-600">
-              Manage parents and their relationships with students
-            </p>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">Parent Management</h1>
+            <p className="text-gray-600">Manage parent accounts</p>
           </div>
           <button
-            onClick={() => {
-              setEditingParent(null);
-              setShowAddModal(true);
-            }}
+            onClick={() => setShowAddModal(true)}
             className="btn btn-primary bg-[#800000] hover:bg-[#600000] text-white"
           >
             <UserPlus className="w-4 h-4 mr-2" />
@@ -177,106 +158,58 @@ const ParentManagement = () => {
               placeholder="Search parents by name, email, or phone..."
               className="input input-bordered w-full pr-10"
             />
-            <Search
-              className="absolute right-3 top-3 text-gray-400"
-              size={20}
-            />
+            <Search className="absolute right-3 top-3 text-gray-400" size={20} />
           </div>
         </div>
 
         {/* Parents Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {getFilteredParents().map((parent) => (
-            <div key={parent.id} className="bg-white rounded-lg shadow-md p-6">
+            <div key={parent._id} className="bg-white rounded-lg shadow-md p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800">
-                    {parent.name}
-                  </h3>
-                  <p className="text-gray-600">{parent.relation}</p>
+                  <h3 className="text-xl font-bold text-gray-800">{parent.name}</h3>
+                  <p className="text-gray-600">{parent.email}</p>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      setEditingParent(parent);
-                      setNewParent(parent);
-                      setShowAddModal(true);
-                    }}
-                    className="btn btn-sm btn-ghost"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                </div>
+                <button
+                  onClick={() => handleDelete(parent._id)}
+                  className="btn btn-sm btn-ghost text-red-500"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
 
               <div className="space-y-3">
                 <div>
                   <p className="text-sm text-gray-500">Contact Information</p>
-                  <p>{parent.email}</p>
-                  <p>{parent.phone}</p>
+                  <p>{parent.contactNumber || 'No phone number provided'}</p>
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-500">Occupation</p>
-                  <p>{parent.occupation}</p>
+                  <p className="text-sm text-gray-500">CNIC</p>
+                  <p>{parent.cnic}</p>
                 </div>
 
                 <div>
                   <p className="text-sm text-gray-500">Address</p>
-                  <p>{parent.address}</p>
+                  <p>{parent.address || 'No address provided'}</p>
                 </div>
 
                 <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <p className="text-sm text-gray-500">Associated Students</p>
-                    <button
-                      onClick={() => {
-                        setSelectedParent(parent);
-                        setShowRelationshipModal(true);
-                      }}
-                      className="btn btn-sm bg-[#800000] text-white hover:bg-[#600000]"
-                    >
-                      <Plus className="w-4 h-4 mr-1" />
-                      Add Student
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    {getParentStudents(parent.id).map((student) => (
-                      <div
-                        key={student.id}
-                        className="flex justify-between items-center p-2 bg-gray-50 rounded"
-                      >
-                        <div>
-                          <p className="font-medium">{student.name}</p>
-                          <p className="text-sm text-gray-500">
-                            {student.class} | Roll No: {student.rollNo}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() =>
-                            handleRemoveRelationship(parent.id, student.id)
-                          }
-                          className="btn btn-sm btn-ghost text-red-500"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                  <p className="text-sm text-gray-500">Associated Student</p>
+                  <p>{students.find(s => s._id === parent.children[0])?.name || 'No student associated'}</p>
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Add/Edit Parent Modal */}
+        {/* Add Parent Modal */}
         {showAddModal && (
           <dialog open className="modal">
             <div className="modal-box w-11/12 max-w-3xl">
-              <h3 className="font-bold text-lg mb-4">
-                {editingParent ? "Edit Parent" : "Add New Parent"}
-              </h3>
-              <form onSubmit={handleAddParent} className="space-y-4">
+              <h3 className="font-bold text-lg mb-4">Add New Parent</h3>
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="label">
@@ -285,33 +218,10 @@ const ParentManagement = () => {
                     <input
                       type="text"
                       value={newParent.name}
-                      onChange={(e) =>
-                        setNewParent({ ...newParent, name: e.target.value })
-                      }
+                      onChange={(e) => setNewParent({ ...newParent, name: e.target.value })}
                       className="input input-bordered w-full"
                       required
                     />
-                  </div>
-
-                  <div>
-                    <label className="label">
-                      <span className="label-text">Relation</span>
-                    </label>
-                    <select
-                      value={newParent.relation}
-                      onChange={(e) =>
-                        setNewParent({ ...newParent, relation: e.target.value })
-                      }
-                      className="select select-bordered w-full"
-                      required
-                    >
-                      <option value="">Select Relation</option>
-                      {RELATIONS.map((relation) => (
-                        <option key={relation} value={relation}>
-                          {relation}
-                        </option>
-                      ))}
-                    </select>
                   </div>
 
                   <div>
@@ -321,9 +231,7 @@ const ParentManagement = () => {
                     <input
                       type="email"
                       value={newParent.email}
-                      onChange={(e) =>
-                        setNewParent({ ...newParent, email: e.target.value })
-                      }
+                      onChange={(e) => setNewParent({ ...newParent, email: e.target.value })}
                       className="input input-bordered w-full"
                       required
                     />
@@ -331,14 +239,12 @@ const ParentManagement = () => {
 
                   <div>
                     <label className="label">
-                      <span className="label-text">Phone</span>
+                      <span className="label-text">Password</span>
                     </label>
                     <input
-                      type="tel"
-                      value={newParent.phone}
-                      onChange={(e) =>
-                        setNewParent({ ...newParent, phone: e.target.value })
-                      }
+                      type="password"
+                      value={newParent.password}
+                      onChange={(e) => setNewParent({ ...newParent, password: e.target.value })}
                       className="input input-bordered w-full"
                       required
                     />
@@ -346,17 +252,12 @@ const ParentManagement = () => {
 
                   <div>
                     <label className="label">
-                      <span className="label-text">Occupation</span>
+                      <span className="label-text">CNIC</span>
                     </label>
                     <input
                       type="text"
-                      value={newParent.occupation}
-                      onChange={(e) =>
-                        setNewParent({
-                          ...newParent,
-                          occupation: e.target.value,
-                        })
-                      }
+                      value={newParent.cnic}
+                      onChange={(e) => setNewParent({ ...newParent, cnic: e.target.value })}
                       className="input input-bordered w-full"
                       required
                     />
@@ -364,18 +265,32 @@ const ParentManagement = () => {
 
                   <div>
                     <label className="label">
-                      <span className="label-text">Status</span>
+                      <span className="label-text">Contact Number</span>
+                    </label>
+                    <input
+                      type="tel"
+                      value={newParent.contactNumber}
+                      onChange={(e) => setNewParent({ ...newParent, contactNumber: e.target.value })}
+                      className="input input-bordered w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="label">
+                      <span className="label-text">Select Student</span>
                     </label>
                     <select
-                      value={newParent.status}
-                      onChange={(e) =>
-                        setNewParent({ ...newParent, status: e.target.value })
-                      }
+                      value={newParent.student_id}
+                      onChange={(e) => setNewParent({ ...newParent, student_id: e.target.value })}
                       className="select select-bordered w-full"
                       required
                     >
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
+                      <option value="">Select Student</option>
+                      {students.map((student) => (
+                        <option key={student._id} value={student._id}>
+                          {student.name} - {student.rollNumber}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
@@ -385,12 +300,9 @@ const ParentManagement = () => {
                     </label>
                     <textarea
                       value={newParent.address}
-                      onChange={(e) =>
-                        setNewParent({ ...newParent, address: e.target.value })
-                      }
+                      onChange={(e) => setNewParent({ ...newParent, address: e.target.value })}
                       className="textarea textarea-bordered w-full"
                       rows="3"
-                      required
                     />
                   </div>
                 </div>
@@ -399,10 +311,7 @@ const ParentManagement = () => {
                   <button
                     type="button"
                     className="btn btn-ghost"
-                    onClick={() => {
-                      setShowAddModal(false);
-                      setEditingParent(null);
-                    }}
+                    onClick={() => setShowAddModal(false)}
                   >
                     Cancel
                   </button>
@@ -410,78 +319,7 @@ const ParentManagement = () => {
                     type="submit"
                     className="btn btn-primary bg-[#800000] hover:bg-[#600000] text-white"
                   >
-                    {editingParent ? "Update Parent" : "Add Parent"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </dialog>
-        )}
-
-        {/* Add Relationship Modal */}
-        {showRelationshipModal && selectedParent && (
-          <dialog open className="modal">
-            <div className="modal-box w-11/12 max-w-3xl">
-              <h3 className="font-bold text-lg mb-4">
-                Add Students for {selectedParent.name}
-              </h3>
-              <form onSubmit={handleAddRelationships} className="space-y-4">
-                <div>
-                  <label className="label">
-                    <span className="label-text">Select Students</span>
-                  </label>
-                  <select
-                    multiple
-                    value={selectedStudents}
-                    onChange={(e) => {
-                      const values = Array.from(
-                        e.target.selectedOptions,
-                        (option) => parseInt(option.value)
-                      );
-                      setSelectedStudents(values);
-                    }}
-                    className="select select-bordered w-full h-48"
-                    required
-                  >
-                    {getAllStudents()
-                      .filter(
-                        (student) =>
-                          !relationships.some(
-                            (r) =>
-                              r.parentId === selectedParent.id &&
-                              r.studentId === student.id
-                          )
-                      )
-                      .map((student) => (
-                        <option key={student.id} value={student.id}>
-                          {student.name} - {student.class} (Roll No:{" "}
-                          {student.rollNo})
-                        </option>
-                      ))}
-                  </select>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Hold Ctrl/Cmd to select multiple students
-                  </p>
-                </div>
-
-                <div className="modal-action">
-                  <button
-                    type="button"
-                    className="btn btn-ghost"
-                    onClick={() => {
-                      setShowRelationshipModal(false);
-                      setSelectedParent(null);
-                      setSelectedStudents([]);
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-primary bg-[#800000] hover:bg-[#600000] text-white"
-                    disabled={selectedStudents.length === 0}
-                  >
-                    Add Students
+                    Add Parent
                   </button>
                 </div>
               </form>
