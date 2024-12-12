@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Search, Plus, UserPlus } from "lucide-react";
+import { AuthService } from "../../../services/authService";
 
 // Dummy data expanded to include more student details
 const ALL_STUDENTS = {
@@ -98,6 +99,8 @@ const StudentsAdmin = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [data, setData] = useState([]);
+  const [branchId, setBranchId] = useState(null);
 
   // New student form state
   const [newStudent, setNewStudent] = useState({
@@ -115,15 +118,26 @@ const StudentsAdmin = () => {
 
   // Get all students in a flat array
   const getAllStudents = () => {
-    return Object.values(ALL_STUDENTS).flat();
+    return Object.values(data).flat();
   };
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await AuthService.getStudents();
+      setData(response.data);
+      AuthService.getAdminBranch().then((response) => { 
+        setBranchId(response.data.branch_id);
+      });
+  
+    };
+    fetchData();
+  }, []);
 
   // Filter students based on class and search query
   const getFilteredStudents = () => {
     let students =
       selectedClass === "all"
         ? getAllStudents()
-        : ALL_STUDENTS[selectedClass] || [];
+        : data[selectedClass] || [];
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -165,8 +179,30 @@ const StudentsAdmin = () => {
 
   const handleAddStudent = (e) => {
     e.preventDefault();
+    
+    AuthService.registerStudent(
+      newStudent.name,
+      newStudent.email,
+      "default",
+      newStudent.rollNo,
+      newStudent.dateOfBirth,
+      newStudent.class,
+      branchId, 
+      newStudent.cnic,
+      newStudent.address,
+      newStudent.phoneNumber,
+      0
+
+    ).then((response) => {
+      console.log(response);
+    }).catch((error) => {
+      console.log(error);
+    });
+
+
+    
     // Here you would typically make an API call to add the student
-    console.log("Adding new student:", newStudent);
+    
 
     // Reset form and close modal
     setNewStudent({
@@ -208,7 +244,7 @@ const StudentsAdmin = () => {
       console.log("Resetting points for student:", student);
 
       // For demo purposes, updating the state directly
-      const updatedStudents = { ...ALL_STUDENTS };
+      const updatedStudents = { ...data };
       const studentClass = student.class;
       const studentIndex = updatedStudents[studentClass].findIndex(
         (s) => s.id === student.id
@@ -277,7 +313,7 @@ const StudentsAdmin = () => {
                 className="select select-bordered w-full max-w-xs"
               >
                 <option value="all">All Classes</option>
-                {Object.keys(ALL_STUDENTS).map((className) => (
+                {Object.keys(data).map((className) => (
                   <option key={className} value={className}>
                     {className}
                   </option>
@@ -425,7 +461,7 @@ const StudentsAdmin = () => {
                     <option value="" disabled>
                       Select New Class
                     </option>
-                    {Object.keys(ALL_STUDENTS)
+                    {Object.keys(data)
                       .filter(
                         (className) => className !== studentToUpdate.class
                       )
@@ -508,7 +544,7 @@ const StudentsAdmin = () => {
                       required
                     >
                       <option value="">Select Class</option>
-                      {Object.keys(ALL_STUDENTS).map((className) => (
+                      {Object.keys(data).map((className) => (
                         <option key={className} value={className}>
                           {className}
                         </option>
@@ -529,23 +565,21 @@ const StudentsAdmin = () => {
                       required
                     />
                   </div>
+                  
 
                   <div>
                     <label className="label">
-                      <span className="label-text">Gender</span>
+                      <span className="label-text">CNIC</span>
                     </label>
-                    <select
-                      name="gender"
-                      value={newStudent.gender}
+                    <input 
+                      type="text"
+                      name="cnic"
+                      value={newStudent.cnic}
                       onChange={handleInputChange}
-                      className="select select-bordered w-full"
+                      className="input input-bordered w-full"
                       required
-                    >
-                      <option value="">Select Gender</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
-                    </select>
+                    />
+
                   </div>
 
                   <div>

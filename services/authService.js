@@ -161,4 +161,10 @@ export class AuthService {
   static async deleteUser(role, id) {
     return axios.delete(`${BASE_URL}/auth/${role}/${id}`, this.getAuthHeaders());
   }
+  static async getStudents(){
+    return axios.get(`${BASE_URL}/auth/student`, this.getAuthHeaders());
+  }
+  static async getAdminBranch(){
+    return axios.get(`${BASE_URL}/auth/get-admin-branch`, this.getAuthHeaders());
+  }
 }
