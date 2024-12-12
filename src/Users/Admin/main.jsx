@@ -286,7 +286,7 @@ const BranchAdminDashboard = () => {
                   {data&& data.topStudents.map((student) => (
                     <tr key={student.id} className="border-b">
                       <td className="px-4 py-3">{student.name}</td>
-                      <td className="px-4 py-3">{student.class.name}</td>
+                      <td className="px-4 py-3">{student.class ? student.class.name : 'N/A'}</td>
                       <td className="px-4 py-3 text-right font-bold text-green-600">
                         {student.points}
                       </td>

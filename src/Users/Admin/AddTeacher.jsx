@@ -1,40 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Search, Loader, AlertCircle, Eye, EyeOff, Mail, Phone } from 'lucide-react';
-import { AuthService } from '../../../services/authService';
+import React, { useState, useEffect } from "react";
+import {
+  Plus,
+  Search,
+  Loader,
+  AlertCircle,
+  Eye,
+  EyeOff,
+  Mail,
+  Phone,
+} from "lucide-react";
+import { AuthService } from "../../../services/authService";
 
 const TeacherManagement = () => {
   const [teachers, setTeachers] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+  const [branchId, setBranchId] = useState(null);
+
   const [newTeacher, setNewTeacher] = useState({
-    name: '',
-    email: '',
-    password: '',
-    qualification: '',
-    branch_id: '', // You'll need to get this from your app's context or props
-    cnic: '',
-    address: '',
-    contactNumber: ''
+    name: "",
+    email: "",
+    password: "",
+    qualification: "",
+    branch_id: "", // You'll need to get this from your app's context or props
+    cnic: "",
+    address: "",
+    contactNumber: "",
   });
 
   // Fetch teachers on component mount
   useEffect(() => {
+    AuthService.getAdminBranch().then((response) => {
+      setBranchId(response.data._id);
+    });
     fetchTeachers();
   }, []);
 
   const fetchTeachers = async () => {
     try {
       setLoading(true);
-      const response = await AuthService.getAllUsers('teacher');
+      const response = await AuthService.getAllUsers("teacher");
       setTeachers(response.data);
       setError(null);
     } catch (err) {
-      setError('Failed to fetch teachers. Please try again later.');
-      console.error('Error fetching teachers:', err);
+      setError("Failed to fetch teachers. Please try again later.");
+      console.error("Error fetching teachers:", err);
     } finally {
       setLoading(false);
     }
@@ -42,33 +55,34 @@ const TeacherManagement = () => {
 
   const getFilteredTeachers = () => {
     if (!searchQuery) return teachers;
-    
+
     const query = searchQuery.toLowerCase();
-    return teachers.filter(teacher => 
-      teacher.name.toLowerCase().includes(query) ||
-      teacher.email.toLowerCase().includes(query) ||
-      teacher.qualification.toLowerCase().includes(query)
+    return teachers.filter(
+      (teacher) =>
+        teacher.name.toLowerCase().includes(query) ||
+        teacher.email.toLowerCase().includes(query) ||
+        teacher.qualification.toLowerCase().includes(query)
     );
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewTeacher(prev => ({
+    setNewTeacher((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       await AuthService.registerTeacher(
         newTeacher.name,
         newTeacher.email,
         newTeacher.password,
         newTeacher.qualification,
-        newTeacher.branch_id,
+        branchId,
         newTeacher.cnic,
         newTeacher.address,
         newTeacher.contactNumber
@@ -79,19 +93,19 @@ const TeacherManagement = () => {
 
       // Reset form and close modal
       setNewTeacher({
-        name: '',
-        email: '',
-        password: '',
-        qualification: '',
-        branch_id: '',
-        cnic: '',
-        address: '',
-        contactNumber: ''
+        name: "",
+        email: "",
+        password: "",
+        qualification: "",
+        branch_id: "",
+        cnic: "",
+        address: "",
+        contactNumber: "",
       });
       setShowModal(false);
     } catch (error) {
-      console.error('Error creating teacher:', error);
-      alert('Failed to create teacher. Please try again.');
+      console.error("Error creating teacher:", error);
+      alert("Failed to create teacher. Please try again.");
     }
   };
 
@@ -123,7 +137,9 @@ const TeacherManagement = () => {
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Teacher Management</h1>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">
+              Teacher Management
+            </h1>
             <p className="text-gray-600">Manage and monitor teaching staff</p>
           </div>
           <button
@@ -145,7 +161,10 @@ const TeacherManagement = () => {
               placeholder="Search teachers by name, email, or qualification..."
               className="input input-bordered w-full pr-10"
             />
-            <Search className="absolute right-3 top-3 text-gray-400" size={20} />
+            <Search
+              className="absolute right-3 top-3 text-gray-400"
+              size={20}
+            />
           </div>
         </div>
 
@@ -162,7 +181,7 @@ const TeacherManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {getFilteredTeachers().map(teacher => (
+              {getFilteredTeachers().map((teacher) => (
                 <tr key={teacher._id}>
                   <td>
                     <div className="font-medium">{teacher.name}</div>
@@ -239,7 +258,11 @@ const TeacherManagement = () => {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-3 text-gray-400"
                       >
-                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        {showPassword ? (
+                          <EyeOff size={20} />
+                        ) : (
+                          <Eye size={20} />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -309,15 +332,15 @@ const TeacherManagement = () => {
                 </div>
 
                 <div className="modal-action">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="btn btn-ghost"
                     onClick={() => setShowModal(false)}
                   >
                     Cancel
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="btn btn-primary bg-[#800000] hover:bg-[#600000] text-white"
                   >
                     Add Teacher
