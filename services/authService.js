@@ -206,6 +206,12 @@ export class AuthService {
       this.getAuthHeaders()
     );
   }
+  static async getStudents(){
+    return axios.get(`${BASE_URL}/auth/student`, this.getAuthHeaders());
+  }
+  static async getAdminBranch(){
+    return axios.get(`${BASE_URL}/auth/get-admin-branch`, this.getAuthHeaders());
+  }
 
   static async registerParent(
     name,
