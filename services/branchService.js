@@ -93,10 +93,10 @@ export class BranchService {
    * @param {string} subject_id - Subject ID
    * @param {string} teacher_id - Teacher ID
    */
-  static async assignTeacher(class_id, subject_id, teacher_id) {
+  static async assignTeacher(class_id, subject_name, teacher_id) {
     return axios.post(`${BASE_URL}/branch/class/assign-teacher`, {
       class_id,
-      subject_id,
+      subject_name,
       teacher_id
     }, this.getAuthHeaders());
 

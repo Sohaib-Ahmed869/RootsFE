@@ -1,147 +1,163 @@
-import React, { useEffect, useState } from 'react';
-import { Plus, Users, BookOpen, GraduationCap, Search } from 'lucide-react';
-import { BranchService } from '../../../services/branchService';
-import { AuthService } from '../../../services/authService';
-// Initial dummy data for classes
-const INITIAL_CLASSES = [
-  {
-    id: 1,
-    name: "10-A",
-    section: "A",
-    grade: "10",
-    classTeacher: "Dr. Sarah Johnson",
-    capacity: 30,
-    currentStrength: 25,
-    subjects: ["Mathematics", "Science", "English", "History"],
-    schedule: "Morning",
-    room: "201",
-    academicYear: "2024-25"
-  },
-  {
-    id: 2,
-    name: "10-B",
-    section: "B",
-    grade: "10",
-    classTeacher: "Prof. Michael Smith",
-    capacity: 30,
-    currentStrength: 28,
-    subjects: ["Mathematics", "Science", "English", "Geography"],
-    schedule: "Morning",
-    room: "202",
-    academicYear: "2024-25"
-  }
-];
-
-const TEACHERS = [
-  "Dr. Sarah Johnson",
-  "Prof. Michael Smith",
-  "Ms. Emily Brown",
-  "Mr. David Wilson"
-];
-
-const SUBJECTS = [
-  "Mathematics",
-  "Science",
-  "English",
-  "History",
-  "Geography",
-  "Computer Science",
-  "Physics",
-  "Chemistry",
-  "Biology"
-];
+import React, { useEffect, useState } from "react";
+import {
+  Plus,
+  Users,
+  BookOpen,
+  GraduationCap,
+  Search,
+  X,
+  Edit,
+} from "lucide-react";
+import { BranchService } from "../../../services/branchService";
+import { AuthService } from "../../../services/authService";
 
 const ClassManagement = () => {
-  const [classes, setClasses] = useState(INITIAL_CLASSES);
+  const [classes, setClasses] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [editingClass, setEditingClass] = useState(null);
-  const[branchId,setBranchId] = useState(1);
-  const [data,setData] = useState([]);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [branchId, setBranchId] = useState("");
+  const [teachers, setTeachers] = useState([]);
+  const [selectedClass, setSelectedClass] = useState(null);
+
+  // State for subject input
+  const [currentSubject, setCurrentSubject] = useState({
+    name: "",
+    teacher_id: "",
+  });
+  const [subjectsList, setSubjectsList] = useState([]);
 
   const [newClass, setNewClass] = useState({
-    name: '',
-    section: '',
-    grade: '',
-    classTeacher: '',
-    capacity: '',
-    currentStrength: 0,
-    subjects: [],
-    schedule: 'Morning',
-    room: '',
-    academicYear: ''
+    name: "",
+    grade: "",
+    section: "",
   });
-  useEffect(()=>{
-    AuthService.getAdminBranch().then((response)=>{
-      console.log(response.data);
-      setBranchId(response.data._id);
-    }).catch((error)=>{
-      console.log(error);
-    });
-  },[]);
-  useEffect(()=>{
-    BranchService.getBranchClasses(branchId).then((response)=>{
-      console.log(response.data);
-      // setData(response.data.data);
-      setClasses(response.data.data);
-    }).catch((error)=>{
-      console.log(error);
-    });
-  }
-  ,[branchId]);
 
+  // Fetch branch ID and teachers on mount
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const [branchResponse, teachersResponse] = await Promise.all([
+          AuthService.getAdminBranch(),
+          AuthService.getAllUsers("teacher"),
+        ]);
+        setBranchId(branchResponse.data._id);
+        setTeachers(teachersResponse.data);
+      } catch (error) {
+        console.error("Error fetching initial data:", error);
+      }
+    };
+    fetchInitialData();
+  }, []);
+
+  // Fetch classes when branchId changes
+  useEffect(() => {
+    if (branchId) {
+      fetchClasses();
+    }
+  }, [branchId]);
+
+  const fetchClasses = async () => {
+    try {
+      const response = await BranchService.getBranchClasses(branchId);
+      setClasses(response.data.data);
+      console.log("Classes:", response.data.data);
+    } catch (error) {
+      console.error("Error fetching classes:", error);
+    }
+  };
+
+  const handleAddSubject = () => {
+    if (currentSubject.name.trim() && currentSubject.teacher_id) {
+      setSubjectsList([
+        ...subjectsList,
+        {
+          name: currentSubject.name.trim(),
+          teacher_id: currentSubject.teacher_id,
+        },
+      ]);
+      setCurrentSubject({ name: "", teacher_id: "" });
+    }
+  };
+
+  const handleRemoveSubject = (indexToRemove) => {
+    setSubjectsList(subjectsList.filter((_, index) => index !== indexToRemove));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Create class with subjects
+      await BranchService.addClass(newClass.name, branchId);
+      await fetchClasses();
+
+      // Reset form
+      setNewClass({ name: "", grade: "", section: "" });
+      setSubjectsList([]);
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error creating class:", error);
+      alert("Failed to create class. Please try again.");
+    }
+  };
+
+  const handleEditClass = async (classId) => {
+    console.log("Editing class:", classId);
+    setSelectedClass(classId);
+    setShowEditModal(true);
+  };
+
+  const assignTeacher = async (classId, subjectName, teacherId) => {
+    try {
+      await BranchService.assignTeacher(classId, subjectName, teacherId);
+      console.log(
+        "Assigning teacher to subject:",
+        classId,
+        subjectName,
+        teacherId
+      );
+      await fetchClasses();
+    } catch (error) {
+      console.error("Error assigning teacher:", error);
+      alert("Failed to assign teacher. Please try again.");
+    }
+  };
+
+  const handleAddSubjectToClass = async (e) => {
+    e.preventDefault();
+    if (!currentSubject.name || !currentSubject.teacher_id || !selectedClass) {
+      console.error("Invalid form data");
+      console.log(currentSubject, selectedClass);
+      return;
+    }
+    try {
+      await BranchService.addSubjectToClass(selectedClass, currentSubject.name);
+
+      // Assign teacher to subject
+
+      await assignTeacher(
+        selectedClass,
+        currentSubject.name,
+        currentSubject.teacher_id
+      );
+
+      await fetchClasses();
+      setCurrentSubject({ name: "", teacher_id: "" });
+    } catch (error) {
+      console.error("Error adding subject to class:", error);
+      alert("Failed to add subject. Please try again.");
+    }
+  };
 
   const getFilteredClasses = () => {
     if (!searchQuery) return classes;
-    
     const query = searchQuery.toLowerCase();
-    return classes.filter(cls => 
-      cls.name.toLowerCase().includes(query) ||
-      cls.classTeacher.toLowerCase().includes(query) ||
-      cls.grade.toString().includes(query)
-    );
+    return classes.filter((cls) => cls.name.toLowerCase().includes(query));
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewClass(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (editingClass) {
-      setClasses(classes.map(cls =>
-        cls.id === editingClass.id ? { ...newClass, id: editingClass.id } : cls
-      ));
-    } else {
-      setClasses([...classes, { ...newClass, id: classes.length + 1 }]);
-    }
-
-    // Reset form and close modal
-    setNewClass({
-      name: '',
-      section: '',
-      grade: '',
-      classTeacher: '',
-      capacity: '',
-      currentStrength: 0,
-      subjects: [],
-      schedule: 'Morning',
-      room: '',
-      academicYear: ''
-    });
-    setEditingClass(null);
-    setShowModal(false);
-  };
-
-  const handleEdit = (cls) => {
-    setEditingClass(cls);
-    setNewClass(cls);
-    setShowModal(true);
+  const getTeacherName = (teacherId) => {
+    const teacher = teachers.find((t) => t._id === teacherId);
+    return teacher ? teacher.name : "Unknown Teacher";
   };
 
   return (
@@ -150,26 +166,13 @@ const ClassManagement = () => {
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Class Management</h1>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">
+              Class Management
+            </h1>
             <p className="text-gray-600">Manage and monitor school classes</p>
           </div>
           <button
-            onClick={() => {
-              setEditingClass(null);
-              setNewClass({
-                name: '',
-                section: '',
-                grade: '',
-                classTeacher: '',
-                capacity: '',
-                currentStrength: 0,
-                subjects: [],
-                schedule: 'Morning',
-                room: '',
-                academicYear: ''
-              });
-              setShowModal(true);
-            }}
+            onClick={() => setShowModal(true)}
             className="btn btn-primary bg-[#800000] hover:bg-[#600000] text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -184,63 +187,61 @@ const ClassManagement = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search classes by name, teacher, or grade..."
+              placeholder="Search classes by name..."
               className="input input-bordered w-full pr-10"
             />
-            <Search className="absolute right-3 top-3 text-gray-400" size={20} />
+            <Search
+              className="absolute right-3 top-3 text-gray-400"
+              size={20}
+            />
           </div>
         </div>
 
         {/* Classes Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {getFilteredClasses().map(cls => (
+          {getFilteredClasses().map((cls) => (
             <div key={cls.id} className="bg-white rounded-lg shadow-md p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800">{cls.name}</h3>
-                  <p className="text-gray-600">Grade {cls.grade} </p>
+                  <h3 className="text-xl font-bold text-gray-800">
+                    {cls.name}
+                  </h3>
                 </div>
                 <button
-                  onClick={() => handleEdit(cls)}
-                  className="btn btn-sm btn-ghost"
+                  onClick={() => handleEditClass(cls.id)}
+                  className="btn btn-sm bg-[#800000] text-white hover:bg-[#600000]"
                 >
-                  Edit
+                  <Edit className="w-4 h-4" />
                 </button>
               </div>
 
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <GraduationCap className="text-gray-400" size={20} />
-                  <span>{cls.classTeacher}</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Users className="text-gray-400" size={20} />
-                  <span>{cls.currentStrength} / {cls.capacity} Students</span>
-                </div>
-
-                <div className="flex items-center gap-2">
                   <BookOpen className="text-gray-400" size={20} />
-                  <div className="flex flex-wrap gap-1">
-                    {cls.subjects.map(subject => (
-                      <span key={subject} className="badge badge-ghost">{subject}</span>
+                  <div className="flex flex-col gap-2 w-full">
+                    {cls.subjects.map((subject, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center bg-gray-50 p-2 rounded"
+                      >
+                        <span className="font-medium">{subject.name}</span>
+                        <span className="text-sm text-gray-600">
+                          {subject.teacher ? subject.teacher.name : "Unknown"}
+                        </span>
+                      </div>
                     ))}
                   </div>
                 </div>
-
-               
               </div>
             </div>
           ))}
         </div>
 
-        {/* Add/Edit Class Modal */}
+        {/* Add Class Modal */}
         {showModal && (
           <dialog open className="modal">
             <div className="modal-box w-11/12 max-w-3xl">
-              <h3 className="font-bold text-lg mb-4">
-                {editingClass ? 'Edit Class' : 'Add New Class'}
-              </h3>
+              <h3 className="font-bold text-lg mb-4">Add New Class</h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -249,9 +250,10 @@ const ClassManagement = () => {
                     </label>
                     <input
                       type="number"
-                      name="grade"
                       value={newClass.grade}
-                      onChange={handleInputChange}
+                      onChange={(e) =>
+                        setNewClass({ ...newClass, grade: e.target.value })
+                      }
                       className="input input-bordered w-full"
                       required
                       min="1"
@@ -265,149 +267,114 @@ const ClassManagement = () => {
                     </label>
                     <input
                       type="text"
-                      name="section"
                       value={newClass.section}
-                      onChange={handleInputChange}
+                      onChange={(e) =>
+                        setNewClass({ ...newClass, section: e.target.value })
+                      }
                       className="input input-bordered w-full"
                       required
                     />
                   </div>
 
-                  <div>
+                  <div className="md:col-span-2">
                     <label className="label">
                       <span className="label-text">Class Name</span>
                     </label>
                     <input
                       type="text"
-                      name="name"
                       value={newClass.name}
-                      onChange={handleInputChange}
+                      onChange={(e) =>
+                        setNewClass({ ...newClass, name: e.target.value })
+                      }
                       className="input input-bordered w-full"
                       required
                     />
-                  </div>
-
-                  <div>
-                    <label className="label">
-                      <span className="label-text">Class Teacher</span>
-                    </label>
-                    <select
-                      name="classTeacher"
-                      value={newClass.classTeacher}
-                      onChange={handleInputChange}
-                      className="select select-bordered w-full"
-                      required
-                    >
-                      <option value="">Select Teacher</option>
-                      {TEACHERS.map(teacher => (
-                        <option key={teacher} value={teacher}>{teacher}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="label">
-                      <span className="label-text">Room Number</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="room"
-                      value={newClass.room}
-                      onChange={handleInputChange}
-                      className="input input-bordered w-full"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="label">
-                      <span className="label-text">Capacity</span>
-                    </label>
-                    <input
-                      type="number"
-                      name="capacity"
-                      value={newClass.capacity}
-                      onChange={handleInputChange}
-                      className="input input-bordered w-full"
-                      required
-                      min="1"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="label">
-                      <span className="label-text">Schedule</span>
-                    </label>
-                    <select
-                      name="schedule"
-                      value={newClass.schedule}
-                      onChange={handleInputChange}
-                      className="select select-bordered w-full"
-                      required
-                    >
-                      <option value="Morning">Morning</option>
-                      <option value="Afternoon">Afternoon</option>
-                      <option value="Evening">Evening</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="label">
-                      <span className="label-text">Academic Year</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="academicYear"
-                      value={newClass.academicYear}
-                      onChange={handleInputChange}
-                      className="input input-bordered w-full"
-                      required
-                      placeholder="2024-25"
-                    />
-                  </div>
-
-                  <div className="col-span-2">
-                    <label className="label">
-                      <span className="label-text">Subjects</span>
-                    </label>
-                    <select
-                      multiple
-                      name="subjects"
-                      value={newClass.subjects}
-                      onChange={(e) => {
-                        const values = Array.from(e.target.selectedOptions, option => option.value);
-                        setNewClass(prev => ({
-                          ...prev,
-                          subjects: values
-                        }));
-                      }}
-                      className="select select-bordered w-full h-32"
-                      required
-                    >
-                      {SUBJECTS.map(subject => (
-                        <option key={subject} value={subject}>{subject}</option>
-                      ))}
-                    </select>
-                    <span className="text-xs text-gray-500">Hold Ctrl/Cmd to select multiple</span>
                   </div>
                 </div>
 
                 <div className="modal-action">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="btn btn-ghost"
                     onClick={() => {
                       setShowModal(false);
-                      setEditingClass(null);
+                      setSubjectsList([]);
+                      setCurrentSubject("");
                     }}
                   >
                     Cancel
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="btn btn-primary bg-[#800000] hover:bg-[#600000] text-white"
+        
                   >
-                    {editingClass ? 'Update Class' : 'Add Class'}
+                    Add Class
+                  </button>
+                </div>
+              </form>
+            </div>
+          </dialog>
+        )}
+
+        {/* Edit Class Modal */}
+        {showEditModal && (
+          <dialog open className="modal">
+            <div className="modal-box w-11/12 max-w-3xl">
+              <h3 className="font-bold text-lg mb-4">Add Subject to Class</h3>
+              <form onSubmit={handleAddSubjectToClass} className="space-y-4">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={currentSubject.name}
+                    onChange={(e) =>
+                      setCurrentSubject({
+                        ...currentSubject,
+                        name: e.target.value,
+                      })
+                    }
+                    className="input input-bordered flex-1"
+                    placeholder="Enter subject name"
+                    required
+                  />
+                  <select
+                    value={currentSubject.teacher_id}
+                    onChange={(e) =>
+                      setCurrentSubject({
+                        ...currentSubject,
+                        teacher_id: e.target.value,
+                      })
+                    }
+                    className="select select-bordered w-64"
+                    required
+                  >
+                    <option value="">Select Teacher</option>
+                    {teachers.map((teacher) => (
+                      <option key={teacher._id} value={teacher._id}>
+                        {teacher.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="submit"
+                    className="btn btn-primary bg-[#800000] hover:bg-[#600000] text-white"
+                    onClick={handleAddSubjectToClass}
+                  >
+                    Add Subject
+                  </button>
+                </div>
+
+                <div className="modal-action">
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    onClick={() => {
+                      setShowEditModal(false);
+                      setSelectedClass(null);
+                      setCurrentSubject({ name: "", teacher_id: "" });
+                    }}
+                  >
+                    Close
                   </button>
                 </div>
               </form>
