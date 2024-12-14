@@ -26,7 +26,7 @@ const Form = () => {
   return (
     <form className="border border-gray-200 shadow-xl rounded-xl p-5 lg:p-10 bg-white flex flex-col gap-2 lg:gap-10" onSubmit={onClickSubmit}>
       <div className="flex justify-between flex-col items-center lg:flex-row-reverse">
-        <img src={logo} alt="logo" className="h-16" />
+        <img src={logo} alt="logo" className="h-28 rounded-xl" />
         <div>
           <h2 className="text-2xl font-bold">Admin Login</h2>
           <p className="text-gray-500">

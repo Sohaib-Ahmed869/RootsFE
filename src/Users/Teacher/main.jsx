@@ -102,7 +102,7 @@ const handleLogout = () => {
 };
 
 
-const COLORS = ['#88141C', '#C53030', '#DC2626', '#EF4444', '#F87171'];
+const COLORS = ['#f74311', '#14b319', '#30c4ff', '#ff36b2', '#30c4ff'];
 const VIOLATION_COLORS = ['#88141C', '#C53030', '#DC2626'];
 
 const TeacherMeritDashboard = () => {

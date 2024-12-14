@@ -63,8 +63,8 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
           option.name !== "Logout" ? (
             <div
               key={index}
-              className={`flex items-center gap-4 p-2 cursor-pointer hover:bg-black ${
-                activeOption === option.name ? "bg-black" : ""
+              className={`flex items-center gap-4 p-2 cursor-pointer hover:bg-white hover:text-[#9d0a10] ${
+                activeOption === option.name ? "bg-white text-[#9d0a10]" : ""
               }`}
               onClick={() => setActiveOption(option.name)}
             >
@@ -74,8 +74,8 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
           ) : (
             <div
               key={index}
-              className={`flex items-center gap-4 p-2 cursor-pointer hover:bg-black ${
-                activeOption === option.name ? "bg-black" : ""
+              className={`flex items-center gap-4 p-2 cursor-pointer hover:text-[#9d0a10] hover:bg-white ${
+                activeOption === option.name ? "bg-white text-[#9d0a10]" : ""
               }`}
               onClick={() => {
                 localStorage.removeItem("token");
