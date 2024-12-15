@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -605,12 +605,11 @@ const SuperAdminDashboard = () => {
       //const data = await response.json();
       console.log(response);
       setBranches(response.data);
-
     };
     fetchBranches();
   }, []);
   useEffect(() => {
-    console.log("Here")
+    console.log("Here");
     console.log(branches);
     console.log(selectedBranch);
   }, [selectedBranch]);
@@ -628,34 +627,58 @@ const SuperAdminDashboard = () => {
     document.body.removeChild(link);
   };
 
+  const exportRecentActivity = () => {
+    const data = branches.branchData[selectedBranch].recentActivity.map(
+      (activity) => ({
+        Date: activity.date,
+        Student: activity.student,
+        Class: '1-F',
+        Type: activity.type,
+        Points: activity.points,
+        Reason: activity.reason,
+        Teacher: activity.teacher,
+      })
+    );
+    exportCSV(data, "recent_activity.csv");
+  };
+
   const handleExportCSV = () => {
     if (currentView === "teachers") {
-      const data = branches.branchData[selectedBranch].teachers.map((teacher) => ({
-        Name: teacher.name,
-        Subject: teacher.subject,
-        "Merits Awarded": teacher.meritsAwarded,
-        Violations: teacher.violations,
-      }));
+      const data = branches.branchData[selectedBranch].teachers.map(
+        (teacher) => ({
+          Name: teacher.name,
+          Subject: teacher.subject,
+          "Merits Awarded": teacher.meritsAwarded,
+          Violations: teacher.violations,
+        })
+      );
       exportCSV(data, "teachers.csv");
     } else if (currentView === "students") {
-      const data = branches.branchData[selectedBranch].topStudents.map((student, index) => ({
-        Rank: index + 1,
-        Name: student.name,
-        Class: student.class,
-        "Merit Points": student.points,
-        Violations: 0, // Assuming violations are not provided in the data
-        "Net Points": student.points,
-      }));
+      const data = branches.branchData[selectedBranch].topStudents.map(
+        (student, index) => ({
+          Rank: index + 1,
+          Name: student.name,
+          Class: student.class,
+          "Merit Points": student.points,
+          Violations: 0, // Assuming violations are not provided in the data
+          "Net Points": student.points,
+        })
+      );
       exportCSV(data, "students.csv");
     } else if (currentView === "classes") {
-      const data = branches.branchData[selectedBranch].classPerformance.map((classData) => ({
-        Class: classData.class,
-        "Total Students": 30, // Assuming a fixed number of students
-        "Merit Points": classData.merits,
-        Violations: classData.violations,
-        "Net Points": classData.merits - classData.violations,
-        "Average Points": ((classData.merits - classData.violations) / 30).toFixed(1),
-      }));
+      const data = branches.branchData[selectedBranch].classPerformance.map(
+        (classData) => ({
+          Class: classData.class,
+          "Total Students": 30, // Assuming a fixed number of students
+          "Merit Points": classData.merits,
+          Violations: classData.violations,
+          "Net Points": classData.merits - classData.violations,
+          "Average Points": (
+            (classData.merits - classData.violations) /
+            30
+          ).toFixed(1),
+        })
+      );
       exportCSV(data, "classes.csv");
     }
   };
@@ -676,33 +699,24 @@ const SuperAdminDashboard = () => {
             <div className="flex items-center space-x-4">
               <select
                 value={selectedBranch}
-                onChange={(e) => {console.log("changing");console.log(e.target.value);setSelectedBranch(e.target.value)}}
+                onChange={(e) => {
+                  console.log("changing");
+                  console.log(e.target.value);
+                  setSelectedBranch(e.target.value);
+                }}
                 className="px-4 py-2 border rounded-lg"
               >
                 <option value="">All Branches</option>
-                {branches.branches && branches.branches.map((branch) => (
-                  <option key={branch.id} value={branches.branches.indexOf(branch)}>
-                    {branch.name}
-                  </option>
-                ))}
+                {branches.branches &&
+                  branches.branches.map((branch) => (
+                    <option
+                      key={branch.id}
+                      value={branches.branches.indexOf(branch)}
+                    >
+                      {branch.name}
+                    </option>
+                  ))}
               </select>
-
-              {selectedBranch && (
-                <select
-                  value={selectedClass}
-                  onChange={(e) => setSelectedClass(e.target.value)}
-                  className="px-4 py-2 border rounded-lg"
-                >
-                  <option value="all">All Classes</option>
-                  {branches.branchData && branches.branchData[selectedBranch].classes.map(
-                    (cls) => (
-                      <option key={cls} value={cls}>
-                        {cls}
-                      </option>
-                    )
-                  )}
-                </select>
-              )}
 
               <select
                 value={dateRange}
@@ -747,18 +761,22 @@ const SuperAdminDashboard = () => {
         {/* Branch Overview - Shown when no branch is selected */}
         {!selectedBranch && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            {branches && branches.branches && branches.branches.map((branch) => (
-              <div
-                key={branch.id}
-                className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => setSelectedBranch(branch.id)}
-              >
-                <h3 className="text-lg font-semibold">{branch.name}</h3>
-                <p className="text-gray-600">{branch.address}</p>
-                <p className="mt-2">Students: {branch.students.length}</p>
-                <div className="mt-4 text-primary">Click to view details →</div>
-              </div>
-            ))}
+            {branches &&
+              branches.branches &&
+              branches.branches.map((branch) => (
+                <div
+                  key={branch.id}
+                  className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => setSelectedBranch(branch.id)}
+                >
+                  <h3 className="text-lg font-semibold">{branch.name}</h3>
+                  <p className="text-gray-600">{branch.address}</p>
+                  <p className="mt-2">Students: {branch.students.length}</p>
+                  <div className="mt-4 text-primary">
+                    Click to view details →
+                  </div>
+                </div>
+              ))}
           </div>
         )}
 
@@ -770,39 +788,25 @@ const SuperAdminDashboard = () => {
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-sm text-gray-600">Total Merit Points</h3>
                 <p className="text-2xl font-bold text-green-600">
-                  +
-                  {
-                    branches.branchData[selectedBranch].stats
-                      .totalMerits
-                  }
+                  +{branches.branchData[selectedBranch].stats.totalMerits}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-sm text-gray-600">Total Violations</h3>
                 <p className="text-2xl font-bold text-red-600">
-                  -
-                  {
-                    branches.branchData[selectedBranch].stats
-                      .totalViolations
-                  }
+                  -{branches.branchData[selectedBranch].stats.totalViolations}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-sm text-gray-600">Active Students</h3>
                 <p className="text-2xl font-bold text-primary">
-                  {
-                    branches.branchData[selectedBranch].stats
-                      .activeStudents
-                  }
+                  {branches.branchData[selectedBranch].stats.activeStudents}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-sm text-gray-600">Teachers</h3>
                 <p className="text-2xl font-bold text-primary">
-                  {
-                    branches.branchData[selectedBranch].stats
-                      .teacherCount
-                  }
+                  {branches.branchData[selectedBranch].stats.teacherCount}
                 </p>
               </div>
             </div>
@@ -817,9 +821,7 @@ const SuperAdminDashboard = () => {
                   </h3>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
-                      data={
-                        branches.branchData[selectedBranch].monthlyTrend
-                      }
+                      data={branches.branchData[selectedBranch].monthlyTrend}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="month" />
@@ -850,8 +852,7 @@ const SuperAdminDashboard = () => {
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart
                       data={
-                        branches.branchData[selectedBranch]
-                          .classPerformance
+                        branches.branchData[selectedBranch].classPerformance
                       }
                     >
                       <CartesianGrid strokeDasharray="3 3" />
@@ -876,7 +877,10 @@ const SuperAdminDashboard = () => {
               <div className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-semibold">Teachers</h3>
-                  <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary">
+                  <button
+                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary"
+                    onClick={handleExportCSV}
+                  >
                     Download Report
                   </button>
                 </div>
@@ -910,8 +914,8 @@ const SuperAdminDashboard = () => {
                   <PaginationControls
                     currentPage={currentPage}
                     totalPages={Math.ceil(
-                      branches.branchData[selectedBranch].teachers
-                        .length / itemsPerPage
+                      branches.branchData[selectedBranch].teachers.length /
+                        itemsPerPage
                     )}
                     onPageChange={setCurrentPage}
                   />
@@ -924,11 +928,8 @@ const SuperAdminDashboard = () => {
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">Recent Activity</h3>
                 <div className="flex space-x-2">
-                  <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" onClick={handleExportCSV}>
+                  <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" onClick={exportRecentActivity}>
                     Export CSV
-                  </button>
-                  <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary">
-                    Generate Report
                   </button>
                 </div>
               </div>
@@ -946,47 +947,49 @@ const SuperAdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {branches.branchData[
-                      selectedBranch
-                    ].recentActivity.map((record) => (
-                      <tr key={record.id} className="border-b">
-                        <td className="px-4 py-3">
-                          {new Date(record.date).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-3">{record.student}</td>
-                        <td className="px-4 py-3">{record.class}</td>
-                        <td className="px-4 py-3">
-                          <span
-                            className={`inline-block px-2 py-1 rounded-full text-sm ${
+                    {branches.branchData[selectedBranch].recentActivity.map(
+                      (record) => (
+                        <tr key={record.id} className="border-b">
+                          <td className="px-4 py-3">
+                            {new Date(record.date).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-3">{record.student}</td>
+                          <td className="px-4 py-3">1-F</td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={`inline-block px-2 py-1 rounded-full text-sm ${
+                                record.type === "merit"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {record.type === "merit" ? "Merit" : "Violation"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">{record.reason}</td>
+                          <td className="px-4 py-3">
+                            {record.teacher ? record.teacher : record.admin}
+                          </td>
+                          <td
+                            className={`px-4 py-3 text-right font-bold ${
                               record.type === "merit"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-red-100 text-red-800"
+                                ? "text-green-600"
+                                : "text-red-600"
                             }`}
                           >
-                            {record.type === "merit" ? "Merit" : "Violation"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">{record.reason}</td>
-                        <td className="px-4 py-3">{record.teacher?record.teacher : record.admin}</td>
-                        <td
-                          className={`px-4 py-3 text-right font-bold ${
-                            record.type === "merit"
-                              ? "text-green-600"
-                              : "text-red-600"
-                          }`}
-                        >
-                          {record.points > 0 ? "+" : ""}
-                          {record.points}
-                        </td>
-                      </tr>
-                    ))}
+                            {record.points > 0 ? "+" : ""}
+                            {record.points}
+                          </td>
+                        </tr>
+                      )
+                    )}
                   </tbody>
                 </table>
                 <PaginationControls
                   currentPage={currentPage}
                   totalPages={Math.ceil(
-                    branches.branchData[selectedBranch].recentActivity
-                      .length / itemsPerPage
+                    branches.branchData[selectedBranch].recentActivity.length /
+                      itemsPerPage
                   )}
                   onPageChange={setCurrentPage}
                 />
@@ -1007,7 +1010,10 @@ const SuperAdminDashboard = () => {
                       />
                       <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                     </div>
-                    <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary flex items-center gap-2">
+                    <button
+                      className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary flex items-center gap-2"
+                      onClick={handleExportCSV}
+                    >
                       <Download size={20} />
                       Export List
                     </button>
@@ -1026,33 +1032,33 @@ const SuperAdminDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {branches.branchData[
-                        selectedBranch
-                      ].topStudents.map((student, index) => (
-                        <tr key={student.id} className="border-b">
-                          <td className="px-4 py-3 font-semibold">
-                            {index + 1}
-                          </td>
-                          <td className="px-4 py-3">{student.name}</td>
-                          <td className="px-4 py-3">{student.class}</td>
-                          <td className="px-4 py-3 text-right text-green-600">
-                            {student.points}
-                          </td>
-                          <td className="px-4 py-3 text-right text-red-600">
-                            0
-                          </td>
-                          <td className="px-4 py-3 text-right font-bold">
-                            {student.points}
-                          </td>
-                        </tr>
-                      ))}
+                      {branches.branchData[selectedBranch].topStudents.map(
+                        (student, index) => (
+                          <tr key={student.id} className="border-b">
+                            <td className="px-4 py-3 font-semibold">
+                              {index + 1}
+                            </td>
+                            <td className="px-4 py-3">{student.name}</td>
+                            <td className="px-4 py-3">1-F</td>
+                            <td className="px-4 py-3 text-right text-green-600">
+                              {student.points}
+                            </td>
+                            <td className="px-4 py-3 text-right text-red-600">
+                              0
+                            </td>
+                            <td className="px-4 py-3 text-right font-bold">
+                              {student.points}
+                            </td>
+                          </tr>
+                        )
+                      )}
                     </tbody>
                   </table>
                   <PaginationControls
                     currentPage={currentPage}
                     totalPages={Math.ceil(
-                      branches.branchData[selectedBranch].topStudents
-                        .length / itemsPerPage
+                      branches.branchData[selectedBranch].topStudents.length /
+                        itemsPerPage
                     )}
                     onPageChange={setCurrentPage}
                   />
@@ -1083,29 +1089,29 @@ const SuperAdminDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {branches.branchData[
-                        selectedBranch
-                      ].classPerformance.map((classData) => (
-                        <tr key={classData.class} className="border-b">
-                          <td className="px-4 py-3">{classData.class}</td>
-                          <td className="px-4 py-3 text-right">30</td>
-                          <td className="px-4 py-3 text-right text-green-600">
-                            {classData.merits}
-                          </td>
-                          <td className="px-4 py-3 text-right text-red-600">
-                            {classData.violations}
-                          </td>
-                          <td className="px-4 py-3 text-right font-bold">
-                            {classData.merits - classData.violations}
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            {(
-                              (classData.merits - classData.violations) /
-                              30
-                            ).toFixed(1)}
-                          </td>
-                        </tr>
-                      ))}
+                      {branches.branchData[selectedBranch].classPerformance.map(
+                        (classData) => (
+                          <tr key={classData.class} className="border-b">
+                            <td className="px-4 py-3">{classData.class}</td>
+                            <td className="px-4 py-3 text-right">30</td>
+                            <td className="px-4 py-3 text-right text-green-600">
+                              {classData.merits}
+                            </td>
+                            <td className="px-4 py-3 text-right text-red-600">
+                              {classData.violations}
+                            </td>
+                            <td className="px-4 py-3 text-right font-bold">
+                              {classData.merits - classData.violations}
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              {(
+                                (classData.merits - classData.violations) /
+                                30
+                              ).toFixed(1)}
+                            </td>
+                          </tr>
+                        )
+                      )}
                     </tbody>
                   </table>
                 </div>

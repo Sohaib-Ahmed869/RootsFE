@@ -6,13 +6,8 @@ import logo from "../../assets/logo.png";
 const Navbar = ({ onLogout }) => (
   <nav className="bg-white shadow-md w-full">
     <div className="mx-auto px-4">
-      <div className="flex justify-between items-center h-16">
-        <div className="flex items-center space-x-3">
-          {/* School Logo */}
-
-          <img src={logo} alt="School Logo" className="h-8" />
-        </div>
-
+      <div className="flex justify-end items-center h-16">
+       
         <button
           onClick={onLogout}
           className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"

@@ -40,7 +40,7 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
       } transform top-0 left-0 w-64 bg-[#9d0a10] text-white h-full fixed overflow-y-auto ease-in-out transition-all duration-300 z-30`}
     >
       <div className="flex justify-between items-center p-4 border-b border-gray-200">
-        <img src={logo} alt="logo" className="h-20" />
+        <img src={logo} alt="logo" className="h-28" />
         <button onClick={toggle}>
           <svg
             xmlns="http://www.w3.org/2000/svg"

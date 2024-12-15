@@ -24,26 +24,26 @@ const Form = () => {
   };
 
   return (
-    <form className="border border-gray-200 shadow-xl rounded-xl p-5 lg:p-10 bg-white flex flex-col gap-2 lg:gap-10" onSubmit={onClickSubmit}>
+    <form className="border border-gray-200 shadow-xl rounded-xl p-5 lg:p-10 bg-[#a00c0c] text-white flex flex-col gap-2 lg:gap-10" onSubmit={onClickSubmit}>
       <div className="flex justify-between flex-col items-center lg:flex-row-reverse">
-        <img src={logo} alt="logo" className="h-28 rounded-xl" />
+        <img src={logo} alt="logo" className="h-36 rounded-xl" />
         <div>
           <h2 className="text-2xl font-bold">Admin Login</h2>
-          <p className="text-gray-500">
+          <p className="text-gray-100">
             Welcome back. Enter your credentials to access your account
           </p>
         </div>
       </div>
       <div className="flex flex-col gap-2">
         <label htmlFor="email">Email</label>
-        <input type="email" className="input input-bordered" id="email" onChange={(e)=>setEmail(e.target.value)} />
+        <input type="email" className="input input-bordered text-black" id="email" onChange={(e)=>setEmail(e.target.value)} />
       </div>
       <div className="flex flex-col gap-2">
         <label htmlFor="password">Password</label>
-        <input type="password" className="input input-bordered" id="password" onChange={(e)=>setPassword(e.target.value)} />
+        <input type="password" className="input input-bordered text-black" id="password" onChange={(e)=>setPassword(e.target.value)} />
       </div>
-      <div className="flex flex-col gap-2">
-        <label htmlFor="role">Role</label>
+      <div className="flex flex-col gap-2 text-black">
+        <label htmlFor="role" className="text-white">Role</label>
         <select id="role" className="input input-bordered" onChange={(e)=>setRole(e.target.value)}>
           <option value="superadmin">SuperAdmin</option>
           <option value="branchadmin">BranchAdmin</option>
@@ -65,7 +65,7 @@ const Form = () => {
         Login
       </button>
 
-      <p className="text-center text-gray-500">
+      <p className="text-center text-gray-100">
         If you do not have an account, please contact the administrator
       </p>
     </form>

@@ -36,7 +36,7 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
       } transform top-0 left-0 w-64 bg-[#9d0a10] text-white h-full fixed overflow-y-auto ease-in-out transition-all duration-300 z-30`}
     >
       <div className="flex justify-between items-center p-4 border-b border-gray-200">
-        <img src={logo} alt="logo" className="h-10" />
+        <img src={logo} alt="logo" className="h-28" />
         <button onClick={toggle}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -59,8 +59,8 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
           option.name !== "Logout" ? (
             <div
               key={index}
-              className={`flex items-center gap-4 p-2 cursor-pointer hover:bg-black ${
-                activeOption === option.name ? "bg-black" : ""
+              className={`flex items-center gap-4 p-2 cursor-pointer hover:text-[#9d0a10] hover:bg-white ${
+                activeOption === option.name ? "bg-white text-[#9d0a10]" : ""
               }`}
               onClick={() => setActiveOption(option.name)}
             >
@@ -70,8 +70,8 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
           ) : (
             <div
               key={index}
-              className={`flex items-center gap-4 p-2 cursor-pointer hover:bg-black ${
-                activeOption === option.name ? "bg-black" : ""
+              className={`flex items-center gap-4 p-2 cursor-pointer hover:text-[#9d0a10] hover:bg-white ${
+                activeOption === option.name ? "bg-white text-[#9d0a10]" : ""
               }`}
               onClick={() => {
                 localStorage.removeItem("token");

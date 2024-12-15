@@ -101,7 +101,6 @@
 
 //       // Close modal
 
-
 //   const handleSubmit = () => {
 //     const selectedMerit = MERIT_CATEGORIES.find(
 //       (m) => m.id === parseInt(selectedCategory)
@@ -321,19 +320,27 @@ const MeritSystem = () => {
   const [data, setData] = useState({
     CLASSES: [],
     STUDENTS: {},
-    MERIT_CATEGORIES: []
+    MERIT_CATEGORIES: [],
   });
+
+  const getStats = async () => {
+    try {
+      const res = await MeritService.getTeacherStats();
+      setData(res.data);
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
 
   useEffect(() => {
     // Fetch data
-    MeritService.getTeacherStats().then((res) => {
-      setData(res.data);
-    });
+    getStats();
   }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     const selectedMerit = data.MERIT_CATEGORIES.find(
-      (m) => m.id ==(selectedCategory)
+      (m) => m.id == selectedCategory
     );
     const pointsToAward =
       selectedMerit?.type === "other" ? customPoints : selectedMerit?.points;
@@ -346,7 +353,7 @@ const MeritSystem = () => {
         selectedMerit?.type === "other" ? customReason : selectedMerit?.reason,
       date: new Date(),
     });
-    MeritService.awardPoints(
+    await MeritService.awardPoints(
       selectedStudent.id,
       pointsToAward,
       selectedMerit?.type === "other" ? customReason : selectedMerit?.reason,
@@ -358,8 +365,7 @@ const MeritSystem = () => {
       }, 3000);
     });
 
-
-
+    getStats();
     // Reset form
     setSelectedCategory("");
     setCustomPoints(0);
@@ -529,9 +535,8 @@ const MeritSystem = () => {
                   disabled={
                     !comments ||
                     !selectedCategory ||
-                    (data.MERIT_CATEGORIES.find(
-                      (m) => m.id == (selectedCategory)
-                    )?.type === "other" &&
+                    (data.MERIT_CATEGORIES.find((m) => m.id == selectedCategory)
+                      ?.type === "other" &&
                       (!customReason || !customPoints))
                   }
                 >

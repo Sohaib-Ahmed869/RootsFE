@@ -125,10 +125,9 @@ const StudentsAdmin = () => {
     const fetchData = async () => {
       const response = await AuthService.getStudents();
       setData(response.data);
-      AuthService.getAdminBranch().then((response) => { 
+      AuthService.getAdminBranch().then((response) => {
         setBranchId(response.data._id);
       });
-  
     };
     fetchData();
   }, []);
@@ -136,9 +135,7 @@ const StudentsAdmin = () => {
   // Filter students based on class and search query
   const getFilteredStudents = () => {
     let students =
-      selectedClass === "all"
-        ? getAllStudents()
-        : data[selectedClass] || [];
+      selectedClass === "all" ? getAllStudents() : data[selectedClass] || [];
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -180,7 +177,7 @@ const StudentsAdmin = () => {
 
   const handleAddStudent = (e) => {
     e.preventDefault();
-    
+
     AuthService.registerStudent(
       newStudent.name,
       newStudent.email,
@@ -188,25 +185,21 @@ const StudentsAdmin = () => {
       newStudent.rollNo,
       newStudent.dateOfBirth,
       newStudent.class,
-      branchId, 
+      branchId,
       newStudent.cnic,
       newStudent.address,
       newStudent.phoneNumber,
       0,
       newStudent.class
+    )
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
 
-    ).then((response) => {
-      console.log(response);
-    }).catch((error) => {
-      console.log(error);
-    });
-    
-    
-
-
-    
     // Here you would typically make an API call to add the student
-    
 
     // Reset form and close modal
     setNewStudent({
@@ -277,13 +270,14 @@ const StudentsAdmin = () => {
       "to:",
       e.target.class.value
     );
-    BranchService.changeStudentClass(studentToUpdate.id, e.target.class.value).then((response) => {
-      console.log(response);
-      alert("Class changed successfully");
-    }
-    ).catch((error) => {
-      console.log(error);
-    });
+    BranchService.changeStudentClass(studentToUpdate.id, e.target.class.value)
+      .then((response) => {
+        console.log(response);
+        alert("Class changed successfully");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
 
     setShowChangeClassModal(false);
     setStudentToUpdate(null);
@@ -387,12 +381,7 @@ const StudentsAdmin = () => {
                 >
                   Demerits {getSortIcon("demerits")}
                 </th>
-                <th
-                  onClick={() => handleSort("rank")}
-                  className="cursor-pointer"
-                >
-                  Rank {getSortIcon("rank")}
-                </th>
+
                 <th>Actions</th>
               </tr>
             </thead>
@@ -412,7 +401,7 @@ const StudentsAdmin = () => {
                       {student.demerits}
                     </span>
                   </td>
-                  <td>{student.rank}</td>
+
                   <td>
                     <div className="flex gap-2">
                       <button
@@ -424,12 +413,7 @@ const StudentsAdmin = () => {
                       >
                         View Details
                       </button>
-                      <button
-                        onClick={() => handleResetPoints(student)}
-                        className="btn btn-sm bg-yellow-600 text-white hover:bg-yellow-700"
-                      >
-                        Reset Points
-                      </button>
+
                       <button
                         onClick={() => {
                           setStudentToUpdate(student);
@@ -576,13 +560,12 @@ const StudentsAdmin = () => {
                       required
                     />
                   </div>
-                  
 
                   <div>
                     <label className="label">
                       <span className="label-text">CNIC</span>
                     </label>
-                    <input 
+                    <input
                       type="text"
                       name="cnic"
                       value={newStudent.cnic}
@@ -590,7 +573,6 @@ const StudentsAdmin = () => {
                       className="input input-bordered w-full"
                       required
                     />
-
                   </div>
 
                   <div>
@@ -636,9 +618,6 @@ const StudentsAdmin = () => {
                   </div>
 
                   {/* Parent Information */}
-                  
-
-                 
                 </div>
 
                 <div className="modal-action">
@@ -699,12 +678,7 @@ const StudentsAdmin = () => {
                     </label>
                     <p>{selectedStudent.demerits}</p>
                   </div>
-                  <div>
-                    <label className="label">
-                      <span className="label-text">Attendance</span>
-                    </label>
-                    <p>{selectedStudent.attendance}</p>
-                  </div>
+
                   <div>
                     <label className="label">
                       <span className="label-text">Rank</span>
