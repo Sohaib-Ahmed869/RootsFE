@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL } from "../config";
+import { BASE_URL } from "./config";
 
 
 /**
@@ -19,5 +19,29 @@ export default class ParentService {
         });
         
     }
-    
+    static async AddChildren(parent_id,student_ids){
+        return axios.put(`${BASE_URL}/parent/children`, {parent_id,student_ids}, {
+            headers: {
+                auth: `${localStorage.getItem('token')}`
+            }
+        });
+
+    }
+    static async assignParentToStudent(parent_id,student_id){
+        return axios.post(`${BASE_URL}/parent/assign`, {parent_id,student_id}, {
+            headers: {
+                auth: `${localStorage.getItem('token')}`
+            }
+        });
+
+    }
+    static async deAssignParentToStudent(parent_id,student_id){ 
+        return axios.post(`${BASE_URL}/parent/deassign`, {parent_id,student_id}, {
+            headers: {
+                auth: `${localStorage.getItem('token')}`
+            }
+        });
+
+    }
+
 }

@@ -6,10 +6,12 @@ import StudentDashboard from "./Users/Student/Dashboard";
 import ParentDashboard from "./Users/Parent/Dashboard";
 import TeacherDashboard from "./Users/Teacher/dashboard";
 import LandingPage from "./Utils/free";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
     <Router>
+      <Toaster />
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/landing" element={<LandingPage />} />

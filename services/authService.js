@@ -236,6 +236,8 @@ export class AuthService {
     contactNumber = "",
   ) {
     const children = [student_id];
+    console.log(children);
+    console.log(password)
     return axios.post(
       `${BASE_URL}/auth/register/parent`,
       {
@@ -249,5 +251,8 @@ export class AuthService {
       },
       this.getAuthHeaders()
     );
+  }
+  static async forgotPassword(email){
+    return axios.post(`${BASE_URL}/auth/student/forgot-password`, {email});
   }
 }

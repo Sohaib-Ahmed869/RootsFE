@@ -84,4 +84,7 @@ export class MeritService {
   static async getChildrenStats(){
     return axios.get(`${BASE_URL}/merit/parent/merit-stats`, this.getAuthHeaders());
   }
+  static async getLatestMerits(){
+    return axios.get(`${BASE_URL}/merit/student/latest-merit`, this.getAuthHeaders());
+  }
 }

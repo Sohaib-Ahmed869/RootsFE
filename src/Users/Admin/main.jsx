@@ -148,7 +148,7 @@ const COLORS = ["#4f46e5", "#7c3aed", "#2563eb", "#0891b2", "#0d9488"];
 const BranchAdminDashboard = () => {
   const [selectedClass, setSelectedClass] = useState("all");
   const [selectedTimeRange, setSelectedTimeRange] = useState("all");
-  const [data,setdata]=useState(MERIT_DATA)
+  const [data,setdata]=useState(null)
 
   useEffect(() => {
     BranchService.getMeritStats().then((res) => {

@@ -2,6 +2,7 @@ import React from 'react';
 import { LineChart, Line, BarChart, Bar, CartesianGrid, Tooltip, Legend, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import { AuthService } from '../../../services/authService';
 import { Star } from 'lucide-react';
+import { MeritService } from '../../../services/meritService';
 // Student Data
 const STUDENT = {
   id: "ST001",
@@ -12,7 +13,7 @@ const STUDENT = {
   totalDemerits: 8,
   netPoints: 77
 };
-const NotificationBadge = () => {
+const NotificationBadge = ({points}) => {
   return (
     <div className="bg-gradient-to-r from-yellow-100 to-amber-100 rounded-lg p-4 shadow-md mb-6 flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -28,12 +29,12 @@ const NotificationBadge = () => {
             Congratulations! 🎉
           </p>
           <p className="text-amber-700">
-            You've been awarded 3 new merit points
+            You've been awarded {points} merit points
           </p>
         </div>
       </div>
       <div className="bg-yellow-500 text-white font-bold text-xl h-12 w-12 rounded-full flex items-center justify-center animate-bounce">
-        +3
+        +{points}
       </div>
     </div>
   );
@@ -104,6 +105,7 @@ const Card = ({ children, className = "" }) => (
 
 const StudentMeritDashboard = () => {
   const [data, setData] = React.useState(null);
+  const [latestPoint, setLatestPoint] = React.useState(null);
   React.useEffect(() => {
     const fetchData = async () => {
      const res=await AuthService.getStudentDash();
@@ -111,6 +113,14 @@ const StudentMeritDashboard = () => {
     };
     fetchData();
   }, []);
+  React.useEffect(() => {
+    MeritService.getLatestMerits().then((res) => {
+      setLatestPoint(res.data);
+    }
+    );
+  },[]
+
+  );  
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       {/* Header with Student Info */}
@@ -125,7 +135,7 @@ const StudentMeritDashboard = () => {
         </div>
 
         {/* Notification */}
-        <NotificationBadge />
+        {latestPoint && <NotificationBadge points={latestPoint.points} />}
 
         {/* Merit Points Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

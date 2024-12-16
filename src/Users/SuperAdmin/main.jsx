@@ -592,7 +592,7 @@ const PaginationControls = ({ currentPage, totalPages, onPageChange }) => (
 );
 
 const SuperAdminDashboard = () => {
-  const [selectedBranch, setSelectedBranch] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState("");
   const [selectedClass, setSelectedClass] = useState("all");
   const [currentView, setCurrentView] = useState("overview"); // overview, classes, teachers, students
   const [dateRange, setDateRange] = useState("all");
@@ -632,7 +632,7 @@ const SuperAdminDashboard = () => {
       (activity) => ({
         Date: activity.date,
         Student: activity.student,
-        Class: '1-F',
+        Class: activity.student,
         Type: activity.type,
         Points: activity.points,
         Reason: activity.reason,
@@ -718,7 +718,7 @@ const SuperAdminDashboard = () => {
                   ))}
               </select>
 
-              <select
+              {/* <select
                 value={dateRange}
                 onChange={(e) => setDateRange(e.target.value)}
                 className="px-4 py-2 border rounded-lg"
@@ -732,7 +732,7 @@ const SuperAdminDashboard = () => {
               <button className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100">
                 <LogOut size={20} />
                 <span>Logout</span>
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
@@ -759,7 +759,7 @@ const SuperAdminDashboard = () => {
         </div>
 
         {/* Branch Overview - Shown when no branch is selected */}
-        {!selectedBranch && (
+        {selectedBranch==null || selectedBranch == "" && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             {branches &&
               branches.branches &&
@@ -767,21 +767,21 @@ const SuperAdminDashboard = () => {
                 <div
                   key={branch.id}
                   className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => setSelectedBranch(branch.id)}
+                  
                 >
                   <h3 className="text-lg font-semibold">{branch.name}</h3>
                   <p className="text-gray-600">{branch.address}</p>
                   <p className="mt-2">Students: {branch.students.length}</p>
-                  <div className="mt-4 text-primary">
+                  <button className="mt-4 text-primary" onClick={()=>setSelectedBranch(branches.branches.indexOf(branch))}>
                     Click to view details →
-                  </div>
+                  </button>
                 </div>
               ))}
           </div>
         )}
 
         {/* Branch Specific View */}
-        {selectedBranch && (
+        {selectedBranch !==null &&  selectedBranch !== "" && (
           <>
             {/* Branch Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
@@ -954,7 +954,7 @@ const SuperAdminDashboard = () => {
                             {new Date(record.date).toLocaleDateString()}
                           </td>
                           <td className="px-4 py-3">{record.student}</td>
-                          <td className="px-4 py-3">1-F</td>
+                          <td className="px-4 py-3">{record.class}</td>
                           <td className="px-4 py-3">
                             <span
                               className={`inline-block px-2 py-1 rounded-full text-sm ${
@@ -1039,7 +1039,7 @@ const SuperAdminDashboard = () => {
                               {index + 1}
                             </td>
                             <td className="px-4 py-3">{student.name}</td>
-                            <td className="px-4 py-3">1-F</td>
+                            <td className="px-4 py-3">{student.class}</td>
                             <td className="px-4 py-3 text-right text-green-600">
                               {student.points}
                             </td>
