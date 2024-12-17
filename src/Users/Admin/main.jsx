@@ -192,7 +192,7 @@ const BranchAdminDashboard = () => {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        {/* <div className="bg-white rounded-lg shadow-md p-4 mb-6">
           <div className="flex flex-wrap gap-4">
             <select
               value={selectedClass}
@@ -217,7 +217,7 @@ const BranchAdminDashboard = () => {
               <option value="thisYear">This Year</option>
             </select>
           </div>
-        </div>
+        </div> */}
 
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">

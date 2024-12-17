@@ -953,7 +953,7 @@ const ParentManagement = () => {
 
       // Filter unassigned students
       const unassigned = studentsResponse.data.filter(
-        student => !student.parent || student.parent !== selectedParent._id
+        student => !student.parent || student.parent !== selectedParent?._id
 
       )
       
