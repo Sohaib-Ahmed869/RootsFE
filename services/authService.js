@@ -15,6 +15,10 @@ export class AuthService {
       },
     };
   }
+  static async checkAuth(role) {
+    return axios.get(`${BASE_URL}/auth/${role}/check-auth`, this.getAuthHeaders());
+  }
+
 
   /**
    * Login user based on role
