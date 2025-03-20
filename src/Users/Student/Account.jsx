@@ -177,7 +177,7 @@ const StudentPortal = () => {
 
       {/* Content */}
       <div className="container mx-auto">
-        {activeTab === "fees" ? <FeesManagement /> : <PasswordUpdate />}
+        {activeTab === "fees" ? <FeesManagement />: null}
       </div>
     </div>
   );

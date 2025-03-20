@@ -102,7 +102,6 @@
 //   navigate("/");
 // };
 
-
 // const COLORS = ['#88141C', '#C53030', '#DC2626', '#EF4444', '#F87171'];
 // const VIOLATION_COLORS = ['#88141C', '#C53030', '#DC2626'];
 
@@ -207,7 +206,7 @@
 //                     <td className="px-4 py-3">{record.studentName}</td>
 //                     <td className="px-4 py-3">
 //                       <span className={`px-2 py-1 rounded-full text-sm ${
-//                         record.type === 'merit' 
+//                         record.type === 'merit'
 //                           ? 'bg-green-100 text-green-800'
 //                           : 'bg-red-100 text-red-800'
 //                       }`}>
@@ -233,14 +232,28 @@
 // };
 
 // export default TeacherMeritDashboard;
-import React, { useEffect, useState } from 'react';
-import { BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { LogOut } from 'lucide-react';
-import Navbar from '../Parent/Navbar';
-import { MeritService } from '../../../services/meritService';
+import React, { useEffect, useState } from "react";
+import {
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { LogOut } from "lucide-react";
+import Navbar from "../Parent/Navbar";
+import { MeritService } from "../../../services/meritService";
 
-const COLORS = ['#f74311', '#14b319', '#30c4ff', '#ff36b2', '#30c4ff'];
-const VIOLATION_COLORS = ['#88141C', '#C53030', '#DC2626'];
+const COLORS = ["#f74311", "#14b319", "#30c4ff", "#ff36b2", "#30c4ff"];
+const VIOLATION_COLORS = ["#88141C", "#C53030", "#DC2626"];
 
 const TeacherMeritDashboard = () => {
   const [selectedClass, setSelectedClass] = useState(null);
@@ -259,8 +272,8 @@ const TeacherMeritDashboard = () => {
           setSelectedClass(Object.keys(response.data)[0]);
         }
       } catch (err) {
-        setError('Failed to load merit data');
-        console.error('Error fetching merit data:', err);
+        setError("Failed to load merit data");
+        console.error("Error fetching merit data:", err);
       } finally {
         setLoading(false);
       }
@@ -285,7 +298,9 @@ const TeacherMeritDashboard = () => {
   if (error || !data || !selectedClass) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-lg text-red-600">{error || 'No data available'}</div>
+        <div className="text-lg text-red-600">
+          {error || "No data available"}
+        </div>
       </div>
     );
   }
@@ -294,8 +309,6 @@ const TeacherMeritDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar onLogout={handleLogout} />
-
       <div className="max-w-7xl mx-auto p-6">
         {/* Class Selector */}
         <div className="mb-6">
@@ -315,12 +328,18 @@ const TeacherMeritDashboard = () => {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-sm text-gray-600">Total Merit Points Awarded</h3>
-            <p className="text-2xl font-bold text-green-600">+{stats.totalMerits}</p>
+            <h3 className="text-sm text-gray-600">
+              Total Merit Points Awarded
+            </h3>
+            <p className="text-2xl font-bold text-green-600">
+              +{stats.totalMerits}
+            </p>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-sm text-gray-600">Total Violations Recorded</h3>
-            <p className="text-2xl font-bold text-red-600">-{stats.totalViolations}</p>
+            <p className="text-2xl font-bold text-red-600">
+              -{stats.totalViolations}
+            </p>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-sm text-gray-600">Net Class Points</h3>
@@ -342,19 +361,36 @@ const TeacherMeritDashboard = () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="merits" stroke="#4f46e5" name="Merits" strokeWidth={2} />
-                <Line type="monotone" dataKey="violations" stroke="#dc2626" name="Violations" strokeWidth={2} />
+                <Line
+                  type="monotone"
+                  dataKey="merits"
+                  stroke="#4f46e5"
+                  name="Merits"
+                  strokeWidth={2}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="violations"
+                  stroke="#dc2626"
+                  name="Violations"
+                  strokeWidth={2}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
           {/* Distribution by Type */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold mb-4">Merit Points Distribution</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              Merit Points Distribution
+            </h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={stats.meritsByType.map((entry) => ({ name: entry.type, count: entry.count }))}
+                  data={stats.meritsByType.map((entry) => ({
+                    name: entry.type,
+                    count: entry.count,
+                  }))}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -364,7 +400,10 @@ const TeacherMeritDashboard = () => {
                   dataKey="count"
                 >
                   {stats.meritsByType.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -392,23 +431,32 @@ const TeacherMeritDashboard = () => {
               <tbody>
                 {stats.recentRecords.map((record) => (
                   <tr key={record.id} className="border-b">
-                    <td className="px-4 py-3">{new Date(record.date).toLocaleDateString()}</td>
+                    <td className="px-4 py-3">
+                      {new Date(record.date).toLocaleDateString()}
+                    </td>
                     <td className="px-4 py-3">{record.studentName}</td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-1 rounded-full text-sm ${
-                        record.type === 'merit' 
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {record.type === 'merit' ? 'Merit' : 'Violation'}
+                      <span
+                        className={`px-2 py-1 rounded-full text-sm ${
+                          record.type === "merit"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {record.type === "merit" ? "Merit" : "Violation"}
                       </span>
                     </td>
                     <td className="px-4 py-3">{record.category}</td>
                     <td className="px-4 py-3">{record.comment}</td>
-                    <td className={`px-4 py-3 text-right font-bold ${
-                      record.type === 'merit' ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {record.points > 0 ? '+' : ''}{record.points}
+                    <td
+                      className={`px-4 py-3 text-right font-bold ${
+                        record.type === "merit"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {record.points > 0 ? "+" : ""}
+                      {record.points}
                     </td>
                   </tr>
                 ))}

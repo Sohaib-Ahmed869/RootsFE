@@ -1,363 +1,3 @@
-// import React, { useState, useEffect } from "react";
-// import {
-//   Plus,
-//   Search,
-//   Loader,
-//   AlertCircle,
-//   Eye,
-//   EyeOff,
-//   Mail,
-//   Phone,
-// } from "lucide-react";
-// import { AuthService } from "../../../services/authService";
-// import { BranchService } from "../../../services/branchService";
-
-// const TeacherManagement = () => {
-//   const [teachers, setTeachers] = useState([]);
-//   const [showModal, setShowModal] = useState(false);
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [showPassword, setShowPassword] = useState(false);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-//   const [branchId, setBranchId] = useState(null);
-
-//   const [newTeacher, setNewTeacher] = useState({
-//     name: "",
-//     email: "",
-//     password: "",
-//     qualification: "",
-//     branch_id: "", // You'll need to get this from your app's context or props
-//     cnic: "",
-//     address: "",
-//     contactNumber: "",
-//   });
-
-//   // Fetch teachers on component mount
-//   useEffect(() => {
-//     AuthService.getAdminBranch().then((response) => {
-//       setBranchId(response.data._id);
-//     });
-//     fetchTeachers();
-//   }, []);
-
-//   const fetchTeachers = async () => {
-//     try {
-//       setLoading(true);
-//       const response = await BranchService.getBranchTeachers();
-//       setTeachers(response.data);
-//       setError(null);
-//     } catch (err) {
-//       setError("Failed to fetch teachers. Please try again later.");
-//       console.error("Error fetching teachers:", err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const getFilteredTeachers = () => {
-//     if (!searchQuery) return teachers;
-
-//     const query = searchQuery.toLowerCase();
-//     return teachers.filter(
-//       (teacher) =>
-//         teacher.name.toLowerCase().includes(query) ||
-//         teacher.email.toLowerCase().includes(query) ||
-//         teacher.qualification.toLowerCase().includes(query)
-//     );
-//   };
-
-//   const handleInputChange = (e) => {
-//     const { name, value } = e.target;
-//     setNewTeacher((prev) => ({
-//       ...prev,
-//       [name]: value,
-//     }));
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-
-//     try {
-//       await AuthService.registerTeacher(
-//         newTeacher.name,
-//         newTeacher.email,
-//         newTeacher.password,
-//         newTeacher.qualification,
-//         branchId,
-//         newTeacher.cnic,
-//         newTeacher.address,
-//         newTeacher.contactNumber
-//       );
-
-//       // Refresh teacher list
-//       await fetchTeachers();
-
-//       // Reset form and close modal
-//       setNewTeacher({
-//         name: "",
-//         email: "",
-//         password: "",
-//         qualification: "",
-//         branch_id: "",
-//         cnic: "",
-//         address: "",
-//         contactNumber: "",
-//       });
-//       setShowModal(false);
-//     } catch (error) {
-//       console.error("Error creating teacher:", error);
-//       alert("Failed to create teacher. Please try again.");
-//     }
-//   };
-
-  // if (loading) {
-  //   return (
-  //     <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
-  //       <div className="flex items-center gap-2">
-  //         <Loader className="w-6 h-6 animate-spin" />
-  //         <span>Loading teachers...</span>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  // if (error) {
-  //   return (
-  //     <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
-  //       <div className="text-red-500 flex items-center gap-2">
-  //         <AlertCircle className="w-6 h-6" />
-  //         <span>{error}</span>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-//   return (
-//     <div className="min-h-screen bg-gray-50 p-6">
-//       <div className="max-w-7xl mx-auto">
-//         {/* Header */}
-//         <div className="mb-8 flex justify-between items-center">
-//           <div>
-//             <h1 className="text-2xl font-bold text-gray-800 mb-2">
-//               Teacher Management
-//             </h1>
-//             <p className="text-gray-600">Manage and monitor teaching staff</p>
-//           </div>
-//           <button
-//             onClick={() => setShowModal(true)}
-//             className="btn btn-primary bg-[#800000] hover:bg-[#600000] text-white"
-//           >
-//             <Plus className="w-4 h-4 mr-2" />
-//             Add Teacher
-//           </button>
-//         </div>
-
-//         {/* Search Bar */}
-//         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-//           <div className="relative">
-//             <input
-//               type="text"
-//               value={searchQuery}
-//               onChange={(e) => setSearchQuery(e.target.value)}
-//               placeholder="Search teachers by name, email, or qualification..."
-//               className="input input-bordered w-full pr-10"
-//             />
-//             <Search
-//               className="absolute right-3 top-3 text-gray-400"
-//               size={20}
-//             />
-//           </div>
-//         </div>
-
-//         {/* Teachers Table */}
-//         <div className="bg-white rounded-lg shadow-md p-6 overflow-x-auto">
-//           <table className="table w-full">
-//             <thead>
-//               <tr>
-//                 <th>Name</th>
-//                 <th>Contact Info</th>
-//                 <th>Qualification</th>
-//                 <th>CNIC</th>
-//                 <th>Address</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {getFilteredTeachers().map((teacher) => (
-//                 <tr key={teacher._id}>
-//                   <td>
-//                     <div className="font-medium">{teacher.name}</div>
-//                   </td>
-//                   <td>
-//                     <div className="flex items-center gap-1">
-//                       <Mail size={14} />
-//                       <span>{teacher.email}</span>
-//                     </div>
-//                     <div className="flex items-center gap-1 text-sm text-gray-500">
-//                       <Phone size={14} />
-//                       <span>{teacher.contactNumber}</span>
-//                     </div>
-//                   </td>
-//                   <td>{teacher.qualification}</td>
-//                   <td>{teacher.cnic}</td>
-//                   <td>{teacher.address}</td>
-//                 </tr>
-//               ))}
-//             </tbody>
-//           </table>
-//         </div>
-
-//         {/* Add Teacher Modal */}
-//         {showModal && (
-//           <dialog open className="modal">
-//             <div className="modal-box w-11/12 max-w-3xl">
-//               <h3 className="font-bold text-lg mb-4">Add New Teacher</h3>
-//               <form onSubmit={handleSubmit} className="space-y-4">
-//                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//                   <div>
-//                     <label className="label">
-//                       <span className="label-text">Full Name</span>
-//                     </label>
-//                     <input
-//                       type="text"
-//                       name="name"
-//                       value={newTeacher.name}
-//                       onChange={handleInputChange}
-//                       className="input input-bordered w-full"
-//                       required
-//                     />
-//                   </div>
-
-//                   <div>
-//                     <label className="label">
-//                       <span className="label-text">Email</span>
-//                     </label>
-//                     <input
-//                       type="email"
-//                       name="email"
-//                       value={newTeacher.email}
-//                       onChange={handleInputChange}
-//                       className="input input-bordered w-full"
-//                       required
-//                     />
-//                   </div>
-
-//                   <div>
-//                     <label className="label">
-//                       <span className="label-text">Password</span>
-//                     </label>
-//                     <div className="relative">
-//                       <input
-//                         type={showPassword ? "text" : "password"}
-//                         name="password"
-//                         value={newTeacher.password}
-//                         onChange={handleInputChange}
-//                         className="input input-bordered w-full pr-10"
-//                         required
-//                       />
-//                       <button
-//                         type="button"
-//                         onClick={() => setShowPassword(!showPassword)}
-//                         className="absolute right-3 top-3 text-gray-400"
-//                       >
-//                         {showPassword ? (
-//                           <EyeOff size={20} />
-//                         ) : (
-//                           <Eye size={20} />
-//                         )}
-//                       </button>
-//                     </div>
-//                   </div>
-
-//                   <div>
-//                     <label className="label">
-//                       <span className="label-text">CNIC</span>
-//                     </label>
-//                     <input
-//                       type="text"
-//                       name="cnic"
-//                       value={newTeacher.cnic}
-//                       onChange={handleInputChange}
-//                       className="input input-bordered w-full"
-//                       required
-//                     />
-//                   </div>
-
-//                   <div>
-//                     <label className="label">
-//                       <span className="label-text">Contact Number</span>
-//                     </label>
-//                     <input
-//                       type="tel"
-//                       name="contactNumber"
-//                       value={newTeacher.contactNumber}
-//                       onChange={handleInputChange}
-//                       className="input input-bordered w-full"
-//                       required
-//                     />
-//                   </div>
-
-//                   <div>
-//                     <label className="label">
-//                       <span className="label-text">Qualification</span>
-//                     </label>
-//                     <input
-//                       type="text"
-//                       name="qualification"
-//                       value={newTeacher.qualification}
-//                       onChange={handleInputChange}
-//                       className="input input-bordered w-full"
-//                       required
-//                     />
-//                   </div>
-
-//                   <div className="md:col-span-2">
-//                     <label className="label">
-//                       <span className="label-text">Address</span>
-//                     </label>
-//                     <textarea
-//                       name="address"
-//                       value={newTeacher.address}
-//                       onChange={handleInputChange}
-//                       className="textarea textarea-bordered w-full"
-//                       rows="3"
-//                       required
-//                     />
-//                   </div>
-
-//                   {/* Note: You'll need to add branch_id selection based on your app's requirements */}
-//                   <input
-//                     type="hidden"
-//                     name="branch_id"
-//                     value={newTeacher.branch_id}
-//                   />
-//                 </div>
-
-//                 <div className="modal-action">
-//                   <button
-//                     type="button"
-//                     className="btn btn-ghost"
-//                     onClick={() => setShowModal(false)}
-//                   >
-//                     Cancel
-//                   </button>
-//                   <button
-//                     type="submit"
-//                     className="btn btn-primary bg-[#800000] hover:bg-[#600000] text-white"
-//                   >
-//                     Add Teacher
-//                   </button>
-//                 </div>
-//               </form>
-//             </div>
-//           </dialog>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default TeacherManagement;
-
 import React, { useState, useEffect } from "react";
 import {
   Plus,
@@ -370,11 +10,11 @@ import {
   Phone,
   Edit,
   Trash2,
-  Ban
+  Ban,
 } from "lucide-react";
 import { AuthService } from "../../../services/authService";
-import {BranchService} from "../../../services/branchService";
-
+import { BranchService } from "../../../services/branchService";
+import TeacherExcelUpload from "./TeacherExcelUpload";
 
 const TeacherManagement = () => {
   const [teachers, setTeachers] = useState([]);
@@ -389,6 +29,7 @@ const TeacherManagement = () => {
   const [branchId, setBranchId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [newTeacher, setNewTeacher] = useState({
     name: "",
     email: "",
@@ -400,12 +41,12 @@ const TeacherManagement = () => {
     contactNumber: "",
   });
   const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setNewTeacher((prev) => ({
-          ...prev,
-          [name]: value,
-        }));
-      };
+    const { name, value } = e.target;
+    setNewTeacher((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   useEffect(() => {
     AuthService.getAdminBranch().then((response) => {
@@ -417,11 +58,10 @@ const TeacherManagement = () => {
   const fetchTeachers = async () => {
     try {
       setLoading(true);
-      const response = await BranchService.getBranchTeachers(); ;
+      const response = await BranchService.getBranchTeachers();
       setTeachers(response.data);
       setError(null);
     } catch (err) {
-      setError("Failed to fetch teachers. Please try again later.");
       console.error("Error fetching teachers:", err);
     } finally {
       setLoading(false);
@@ -450,8 +90,9 @@ const TeacherManagement = () => {
 
   const handleDelete = async () => {
     try {
-      await AuthService.deleteUser('teacher',selectedTeacher._id);
+      await AuthService.deleteUser("teacher", selectedTeacher._id);
       await fetchTeachers();
+
       setShowDeleteModal(false);
     } catch (error) {
       console.error("Error deleting teacher:", error);
@@ -462,9 +103,13 @@ const TeacherManagement = () => {
   const handleBlock = async () => {
     try {
       if (selectedTeacher.blocked) {
-        await AuthService.updateUser('teacher', selectedTeacher._id, { blocked: false });
+        await AuthService.updateUser("teacher", selectedTeacher._id, {
+          blocked: false,
+        });
       } else {
-        await AuthService.updateUser('teacher', selectedTeacher._id, { blocked: true });  
+        await AuthService.updateUser("teacher", selectedTeacher._id, {
+          blocked: true,
+        });
       }
       await fetchTeachers();
       setShowBlockModal(false);
@@ -479,7 +124,11 @@ const TeacherManagement = () => {
 
     try {
       if (isEditing) {
-        await AuthService.updateUser('teacher', selectedTeacher._id, newTeacher);
+        await AuthService.updateUser(
+          "teacher",
+          selectedTeacher._id,
+          newTeacher
+        );
       } else {
         await AuthService.registerTeacher(
           newTeacher.name,
@@ -517,7 +166,26 @@ const TeacherManagement = () => {
     setSelectedTeacher(null);
   };
 
-  // ... (keep existing loading and error handling)
+  useEffect(() => {
+    if (searchQuery) {
+      const filteredTeachers = teachers.filter((teacher) => {
+        const searchFields = [
+          teacher.name,
+          teacher.email,
+          teacher.qualification,
+          teacher.cnic,
+          teacher.address,
+        ];
+        return searchFields.some((field) =>
+          field.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      });
+      setTeachers(filteredTeachers);
+    } else {
+      fetchTeachers();
+    }
+  }, [searchQuery]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
@@ -541,6 +209,31 @@ const TeacherManagement = () => {
   }
   return (
     <div className="min-h-screen bg-gray-50 p-6">
+      {showUploadModal && (
+        <dialog open className="modal">
+          <div className="modal-box w-11/12 max-w-2xl">
+            <h3 className="font-bold text-lg mb-4">
+              Upload Teachers Excel File
+            </h3>
+            <TeacherExcelUpload
+              branchId={branchId}
+              onSuccess={() => {
+                setShowUploadModal(false);
+                // Refresh the teachers list
+                fetchTeachers();
+              }}
+            />
+            <div className="modal-action">
+              <button
+                className="btn btn-ghost"
+                onClick={() => setShowUploadModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </dialog>
+      )}
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
@@ -557,6 +250,13 @@ const TeacherManagement = () => {
             <Plus className="w-4 h-4 mr-2" />
             Add Teacher
           </button>
+          <button
+            onClick={() => setShowUploadModal(true)}
+            className="btn btn-primary bg-[#800000] hover:bg-[#600000] text-white"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Upload Teachers
+          </button>
         </div>
 
         {/* Search Bar */}
@@ -569,7 +269,10 @@ const TeacherManagement = () => {
               placeholder="Search teachers by name, email, or qualification..."
               className="input input-bordered w-full pr-10"
             />
-            <Search className="absolute right-3 top-3 text-gray-400" size={20} />
+            <Search
+              className="absolute right-3 top-3 text-gray-400"
+              size={20}
+            />
           </div>
         </div>
 
@@ -607,8 +310,12 @@ const TeacherManagement = () => {
                   <td>{teacher.cnic}</td>
                   <td>{teacher.address}</td>
                   <td>
-                    <span className={`badge ${teacher.blocked ? 'badge-error' : 'badge-success'}`}>
-                      {teacher.blocked ? 'Blocked' : 'Active'}
+                    <span
+                      className={`badge ${
+                        teacher.blocked ? "badge-error" : "badge-success"
+                      }`}
+                    >
+                      {teacher.blocked ? "Blocked" : "Active"}
                     </span>
                   </td>
                   <td>
@@ -629,7 +336,13 @@ const TeacherManagement = () => {
                         onClick={() => handleBlockClick(teacher)}
                         className="btn btn-sm btn-ghost"
                       >
-                        <Ban className={`w-4 h-4 ${teacher.blocked ? 'text-green-500' : 'text-orange-500'}`} />
+                        <Ban
+                          className={`w-4 h-4 ${
+                            teacher.blocked
+                              ? "text-green-500"
+                              : "text-orange-500"
+                          }`}
+                        />
                       </button>
                     </div>
                   </td>
@@ -644,7 +357,7 @@ const TeacherManagement = () => {
           <dialog open className="modal">
             <div className="modal-box w-11/12 max-w-3xl">
               <h3 className="font-bold text-lg mb-4">
-                {isEditing ? 'Edit Teacher' : 'Add New Teacher'}
+                {isEditing ? "Edit Teacher" : "Add New Teacher"}
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -706,9 +419,9 @@ const TeacherManagement = () => {
                   )}
                   <div>
                     <label className="label">
-                       <span className="label-text">CNIC</span>
-                     </label>
-                     <input
+                      <span className="label-text">CNIC</span>
+                    </label>
+                    <input
                       type="text"
                       name="cnic"
                       value={newTeacher.cnic}
@@ -720,45 +433,45 @@ const TeacherManagement = () => {
 
                   <div>
                     <label className="label">
-                                             <span className="label-text">Contact Number</span>
-                     </label>
-                     <input
-                       type="tel"
-                       name="contactNumber"
-                       value={newTeacher.contactNumber}
-                       onChange={handleInputChange}
-                       className="input input-bordered w-full"
-                       required
-                     />
-                   </div>
+                      <span className="label-text">Contact Number</span>
+                    </label>
+                    <input
+                      type="tel"
+                      name="contactNumber"
+                      value={newTeacher.contactNumber}
+                      onChange={handleInputChange}
+                      className="input input-bordered w-full"
+                      required
+                    />
+                  </div>
 
-                   <div>
-                     <label className="label">
-                       <span className="label-text">Qualification</span>
-                     </label>
-                     <input
-                       type="text"
-                       name="qualification"
-                       value={newTeacher.qualification}
-                       onChange={handleInputChange}
-                       className="input input-bordered w-full"
-                       required
-                     />
-                   </div>
+                  <div>
+                    <label className="label">
+                      <span className="label-text">Qualification</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="qualification"
+                      value={newTeacher.qualification}
+                      onChange={handleInputChange}
+                      className="input input-bordered w-full"
+                      required
+                    />
+                  </div>
 
-                   <div className="md:col-span-2">
-                     <label className="label">
-                       <span className="label-text">Address</span>
-                     </label>
-                     <textarea
-                       name="address"
-                       value={newTeacher.address}
-                       onChange={handleInputChange}
-                       className="textarea textarea-bordered w-full"
-                       rows="3"
-                       required
-                     />
-                   </div>
+                  <div className="md:col-span-2">
+                    <label className="label">
+                      <span className="label-text">Address</span>
+                    </label>
+                    <textarea
+                      name="address"
+                      value={newTeacher.address}
+                      onChange={handleInputChange}
+                      className="textarea textarea-bordered w-full"
+                      rows="3"
+                      required
+                    />
+                  </div>
                 </div>
 
                 <div className="modal-action">
@@ -773,7 +486,7 @@ const TeacherManagement = () => {
                     type="submit"
                     className="btn btn-primary bg-[#800000] hover:bg-[#600000] text-white"
                   >
-                    {isEditing ? 'Save Changes' : 'Add Teacher'}
+                    {isEditing ? "Save Changes" : "Add Teacher"}
                   </button>
                 </div>
               </form>
@@ -787,7 +500,8 @@ const TeacherManagement = () => {
             <div className="modal-box">
               <h3 className="font-bold text-lg">Confirm Delete</h3>
               <p className="py-4">
-                Are you sure you want to delete teacher {selectedTeacher?.name}? This action cannot be undone.
+                Are you sure you want to delete teacher {selectedTeacher?.name}?
+                This action cannot be undone.
               </p>
               <div className="modal-action">
                 <button
@@ -796,10 +510,7 @@ const TeacherManagement = () => {
                 >
                   Cancel
                 </button>
-                <button
-                  className="btn btn-error"
-                  onClick={handleDelete}
-                >
+                <button className="btn btn-error" onClick={handleDelete}>
                   Delete
                 </button>
               </div>
@@ -812,10 +523,12 @@ const TeacherManagement = () => {
           <dialog open className="modal">
             <div className="modal-box">
               <h3 className="font-bold text-lg">
-                Confirm {selectedTeacher?.blocked ? 'Unblock' : 'Block'}
+                Confirm {selectedTeacher?.blocked ? "Unblock" : "Block"}
               </h3>
               <p className="py-4">
-                Are you sure you want to {selectedTeacher?.blocked ? 'unblock' : 'block'} teacher {selectedTeacher?.name}?
+                Are you sure you want to{" "}
+                {selectedTeacher?.blocked ? "unblock" : "block"} teacher{" "}
+                {selectedTeacher?.name}?
               </p>
               <div className="modal-action">
                 <button
@@ -825,10 +538,12 @@ const TeacherManagement = () => {
                   Cancel
                 </button>
                 <button
-                  className={`btn ${selectedTeacher?.blocked ? 'btn-success' : 'btn-warning'}`}
+                  className={`btn ${
+                    selectedTeacher?.blocked ? "btn-success" : "btn-warning"
+                  }`}
                   onClick={handleBlock}
                 >
-                  {selectedTeacher?.blocked ? 'Unblock' : 'Block'}
+                  {selectedTeacher?.blocked ? "Unblock" : "Block"}
                 </button>
               </div>
             </div>

@@ -148,45 +148,55 @@ const COLORS = ["#4f46e5", "#7c3aed", "#2563eb", "#0891b2", "#0d9488"];
 const BranchAdminDashboard = () => {
   const [selectedClass, setSelectedClass] = useState("all");
   const [selectedTimeRange, setSelectedTimeRange] = useState("all");
-  const [data,setdata]=useState(null)
+  const [data, setdata] = useState(null);
 
   useEffect(() => {
     BranchService.getMeritStats().then((res) => {
-      console.log(res.data)
-      setdata(res.data)
-    })
+      console.log(res.data);
+      setdata(res.data);
+      setBranchName(localStorage.getItem("branchname"));
+    });
+  }, []);
 
-    
-  },[])
-
+  const [branchName, setBranchName] = useState(
+    localStorage.getItem("branchname")
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Top Bar */}
+      <div className="bg-white shadow-md">
+        <div className="max-w-7xl mx-auto p-4 flex justify-center items-center">
+          <h1 className="text-xl font-bold text-gray-800">
+            Branch Name: <span className="text-red-600">{branchName}</span>
+          </h1>
+        </div>
+      </div>
       <div className="max-w-7xl mx-auto p-6">
         {/* Overview Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-sm text-gray-600">Total Merit Points</h3>
             <p className="text-2xl font-bold text-green-600">
-              +{data&& data.overallStats.totalMerits}
+              +{data && data.overallStats.totalMerits}
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-sm text-gray-600">Total Violations</h3>
             <p className="text-2xl font-bold text-red-600">
-              -{data&& data.overallStats.totalViolations}
+              -{data && data.overallStats.totalViolations}
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-sm text-gray-600">Active Students</h3>
             <p className="text-2xl font-bold text-indigo-600">
-              {data&& data.overallStats.activeStudents}
+              {data && data.overallStats.activeStudents}
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-sm text-gray-600">Teacher Participation</h3>
             <p className="text-2xl font-bold text-blue-600">
-              {data&& data.overallStats.teacherParticipation}
+              {data && data.overallStats.teacherParticipation}
             </p>
           </div>
         </div>
@@ -225,7 +235,7 @@ const BranchAdminDashboard = () => {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-lg font-semibold mb-4">Merit Points Trend</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={data&& data.trendData}>
+              <LineChart data={data && data.trendData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
@@ -255,7 +265,7 @@ const BranchAdminDashboard = () => {
               Class-wise Performance
             </h3>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data&& data.classWiseStats}>
+              <BarChart data={data && data.classWiseStats}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="class" />
                 <YAxis />
@@ -283,15 +293,18 @@ const BranchAdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data&& data.topStudents.map((student) => (
-                    <tr key={student.id} className="border-b">
-                      <td className="px-4 py-3">{student.name}</td>
-                      <td className="px-4 py-3">{student.class ? student.class.name : 'N/A'}</td>
-                      <td className="px-4 py-3 text-right font-bold text-green-600">
-                        {student.points}
-                      </td>
-                    </tr>
-                  ))}
+                  {data &&
+                    data.topStudents.map((student) => (
+                      <tr key={student.id} className="border-b">
+                        <td className="px-4 py-3">{student.name}</td>
+                        <td className="px-4 py-3">
+                          {student.class ? student.class.name : "N/A"}
+                        </td>
+                        <td className="px-4 py-3 text-right font-bold text-green-600">
+                          {student.points}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -310,17 +323,18 @@ const BranchAdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data&& data.teacherStats.map((teacher, index) => (
-                    <tr key={index} className="border-b">
-                      <td className="px-4 py-3">{teacher.name}</td>
-                      <td className="px-4 py-3 text-right text-green-600">
-                        {teacher.meritsAwarded}
-                      </td>
-                      <td className="px-4 py-3 text-right text-red-600">
-                        {teacher.violations}
-                      </td>
-                    </tr>
-                  ))}
+                  {data &&
+                    data.teacherStats.map((teacher, index) => (
+                      <tr key={index} className="border-b">
+                        <td className="px-4 py-3">{teacher.name}</td>
+                        <td className="px-4 py-3 text-right text-green-600">
+                          {teacher.meritsAwarded}
+                        </td>
+                        <td className="px-4 py-3 text-right text-red-600">
+                          {teacher.violations}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -344,38 +358,39 @@ const BranchAdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {data&& data.recentRecords.map((record) => (
-                  <tr key={record.id} className="border-b">
-                    <td className="px-4 py-3">
-                      {new Date(record.date).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-3">{record.student}</td>
-                    <td className="px-4 py-3">{record.class}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-block px-2 py-1 rounded-full text-sm ${
+                {data &&
+                  data.recentRecords.map((record) => (
+                    <tr key={record.id} className="border-b">
+                      <td className="px-4 py-3">
+                        {new Date(record.date).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3">{record.student}</td>
+                      <td className="px-4 py-3">{record.class}</td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-block px-2 py-1 rounded-full text-sm ${
+                            record.type === "merit"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {record.type === "merit" ? "Merit" : "Violation"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">{record.reason}</td>
+                      <td className="px-4 py-3">{record.teacher}</td>
+                      <td
+                        className={`px-4 py-3 text-right font-bold ${
                           record.type === "merit"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
+                            ? "text-green-600"
+                            : "text-red-600"
                         }`}
                       >
-                        {record.type === "merit" ? "Merit" : "Violation"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">{record.reason}</td>
-                    <td className="px-4 py-3">{record.teacher}</td>
-                    <td
-                      className={`px-4 py-3 text-right font-bold ${
-                        record.type === "merit"
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {record.points > 0 ? "+" : ""}
-                      {record.points}
-                    </td>
-                  </tr>
-                ))}
+                        {record.type === "merit" ? "+" : "-"}
+                        {record.points}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -391,10 +406,13 @@ const BranchAdminDashboard = () => {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={data&& data.violationTypes.map((v) => ({
-                    name: v.type,
-                    count: v.count,
-                  }))}
+                  data={
+                    data &&
+                    data.violationTypes.map((v) => ({
+                      name: v.type,
+                      count: v.count,
+                    }))
+                  }
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -403,12 +421,13 @@ const BranchAdminDashboard = () => {
                   paddingAngle={5}
                   dataKey="count"
                 >
-                  {data&& data.violationTypes.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
+                  {data &&
+                    data.violationTypes.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
                 </Pie>
                 <Tooltip />
                 <Legend />
@@ -429,31 +448,34 @@ const BranchAdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data&& data.violationTypes.map((violation, index) => (
-                    <tr key={index} className="border-b">
-                      <td className="px-4 py-3">{violation.type}</td>
-                      <td className="px-4 py-3 text-right">
-                        {violation.count}
-                      </td>
-                      <td className="px-4 py-3 text-right text-red-600">
-                        -{violation.totalPoints}
-                      </td>
-                    </tr>
-                  ))}
+                  {data &&
+                    data.violationTypes.map((violation, index) => (
+                      <tr key={index} className="border-b">
+                        <td className="px-4 py-3">{violation.type}</td>
+                        <td className="px-4 py-3 text-right">
+                          {violation.count}
+                        </td>
+                        <td className="px-4 py-3 text-right text-red-600">
+                          -{violation.totalPoints}
+                        </td>
+                      </tr>
+                    ))}
                   <tr className="font-bold bg-gray-50">
                     <td className="px-4 py-3">Total</td>
                     <td className="px-4 py-3 text-right">
-                      {data&& data.violationTypes.reduce(
-                        (sum, v) => sum + v.count,
-                        0
-                      )}
+                      {data &&
+                        data.violationTypes.reduce(
+                          (sum, v) => sum + v.count,
+                          0
+                        )}
                     </td>
                     <td className="px-4 py-3 text-right text-red-600">
                       -
-                      {data&& data.violationTypes.reduce(
-                        (sum, v) => sum + v.totalPoints,
-                        0
-                      )}
+                      {data &&
+                        data.violationTypes.reduce(
+                          (sum, v) => sum + v.totalPoints,
+                          0
+                        )}
                     </td>
                   </tr>
                 </tbody>
@@ -463,14 +485,6 @@ const BranchAdminDashboard = () => {
         </div>
 
         {/* Actions Bar */}
-        <div className="mt-6 flex justify-end space-x-4">
-          <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-            Download Report
-          </button>
-          <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
-            Print Summary
-          </button>
-        </div>
       </div>
     </div>
   );

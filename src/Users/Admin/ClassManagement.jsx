@@ -199,7 +199,7 @@ const ClassManagement = () => {
 
         {/* Classes Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {getFilteredClasses().map((cls) => (
+          {getFilteredClasses()?.map((cls) => (
             <div key={cls.id} className="bg-white rounded-lg shadow-md p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 import { BASE_URL } from "./config";
 
 /**
@@ -7,11 +7,11 @@ import { BASE_URL } from "./config";
  */
 export class BranchService {
   static getAuthHeaders() {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     return {
       headers: {
-        auth: `${token}`
-      }
+        auth: `${token}`,
+      },
     };
   }
 
@@ -24,13 +24,32 @@ export class BranchService {
    * @param {number} capacity - Branch capacity
    */
   static async createBranch(name, address, contactNumber, email, capacity) {
-    return axios.post(`${BASE_URL}/branch`, {
-      name,
-      address,
-      contactNumber,
-      email,
-      capacity
-    }, this.getAuthHeaders());
+    return axios.post(
+      `${BASE_URL}/branch`,
+      {
+        name,
+        address,
+        contactNumber,
+        email,
+        capacity,
+      },
+      this.getAuthHeaders()
+    );
+  }
+
+  static async deleteBranch(branch_id) {
+    return axios.delete(
+      `${BASE_URL}/branch/${branch_id}`,
+      this.getAuthHeaders()
+    );
+  }
+
+  static async updateBranch(branch_id, data) {
+    return axios.put(
+      `${BASE_URL}/branch/${branch_id}`,
+      data,
+      this.getAuthHeaders()
+    );
   }
 
   /**
@@ -39,7 +58,7 @@ export class BranchService {
   static async getAllBranches() {
     return axios.get(`${BASE_URL}/branch`, this.getAuthHeaders());
   }
-  static async getMeritStats(){
+  static async getMeritStats() {
     return axios.get(`${BASE_URL}/merit/merit-stats`, this.getAuthHeaders());
   }
 
@@ -57,7 +76,11 @@ export class BranchService {
    * @param {string} branch_id - Branch ID
    */
   static async addClass(name, branch_id) {
-    return axios.post(`${BASE_URL}/branch/class/create`, { name, branch_id }, this.getAuthHeaders());
+    return axios.post(
+      `${BASE_URL}/branch/class/create`,
+      { name, branch_id },
+      this.getAuthHeaders()
+    );
   }
 
   /**
@@ -66,7 +89,11 @@ export class BranchService {
    * @param {Array<string>} student_ids - Array of student IDs
    */
   static async addStudentsToClass(class_name, student_ids) {
-    return axios.post(`${BASE_URL}/branch/class/add-students`, { class_name, student_ids }, this.getAuthHeaders());
+    return axios.post(
+      `${BASE_URL}/branch/class/add-students`,
+      { class_name, student_ids },
+      this.getAuthHeaders()
+    );
   }
 
   /**
@@ -75,7 +102,11 @@ export class BranchService {
    * @param {string} new_class_id - New class ID
    */
   static async changeStudentClass(student_id, new_class_name) {
-    return axios.put(`${BASE_URL}/branch/class/change-student`, { student_id, new_class_name }, this.getAuthHeaders());
+    return axios.put(
+      `${BASE_URL}/branch/class/change-student`,
+      { student_id, new_class_name }, // Make sure this matches your backend expectations
+      this.getAuthHeaders()
+    );
   }
 
   /**
@@ -84,7 +115,11 @@ export class BranchService {
    * @param {string} subject_name - Subject name
    */
   static async addSubjectToClass(class_id, subject_name) {
-    return axios.post(`${BASE_URL}/branch/class/add-subject`, { class_id, subject_name }, this.getAuthHeaders());
+    return axios.post(
+      `${BASE_URL}/branch/class/add-subject`,
+      { class_id, subject_name },
+      this.getAuthHeaders()
+    );
   }
 
   /**
@@ -94,17 +129,19 @@ export class BranchService {
    * @param {string} teacher_id - Teacher ID
    */
   static async assignTeacher(class_id, subject_name, teacher_id) {
-    return axios.post(`${BASE_URL}/branch/class/assign-teacher`, {
-      class_id,
-      subject_name,
-      teacher_id
-    }, this.getAuthHeaders());
-
+    return axios.post(
+      `${BASE_URL}/branch/class/assign-teacher`,
+      {
+        class_id,
+        subject_name,
+        teacher_id,
+      },
+      this.getAuthHeaders()
+    );
   }
-  static async getBranchTeachers(){
+  static async getBranchTeachers() {
     return axios.get(`${BASE_URL}/branch/teacher/data`, this.getAuthHeaders());
   }
-
 
   /**
    * Get Recent activy of a branch
@@ -118,7 +155,7 @@ export class BranchService {
     }
     return axios.get(`${BASE_URL}/branch/recent/${branch_id}`, {
       ...this.getAuthHeaders(),
-      params
+      params,
     });
   }
   /**
@@ -126,13 +163,18 @@ export class BranchService {
    * @param {string} teacher_id - Teacher ID
    */
   static async getAwardedMeritPoints(teacher_id) {
-    return axios.get(`${BASE_URL}/teacher/merit/${teacher_id}`, this.getAuthHeaders());
+    return axios.get(
+      `${BASE_URL}/teacher/merit/${teacher_id}`,
+      this.getAuthHeaders()
+    );
   }
-  static getBranchClasses(branch_id){
-    return axios.get(`${BASE_URL}/branch/classes/${branch_id}`, this.getAuthHeaders());
-  } 
-  static async getBranchStudents(){
+  static getBranchClasses(branch_id) {
+    return axios.get(
+      `${BASE_URL}/branch/classes/${branch_id}`,
+      this.getAuthHeaders()
+    );
+  }
+  static async getBranchStudents() {
     return axios.get(`${BASE_URL}/branch/student/data`, this.getAuthHeaders());
   }
-  
 }

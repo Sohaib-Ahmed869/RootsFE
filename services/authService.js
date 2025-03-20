@@ -16,9 +16,11 @@ export class AuthService {
     };
   }
   static async checkAuth(role) {
-    return axios.get(`${BASE_URL}/auth/${role}/check-auth`, this.getAuthHeaders());
+    return axios.get(
+      `${BASE_URL}/auth/${role}/check-auth`,
+      this.getAuthHeaders()
+    );
   }
-
 
   /**
    * Login user based on role
@@ -150,6 +152,7 @@ export class AuthService {
     age = null,
     class_name = ""
   ) {
+    console.log(rollNumber);
     return axios.post(
       `${BASE_URL}/auth/register/student`,
       {
@@ -212,22 +215,30 @@ export class AuthService {
       this.getAuthHeaders()
     );
   }
-  static async getStudents(){
+  static async getStudents() {
     return axios.get(`${BASE_URL}/auth/student2`, this.getAuthHeaders());
   }
-  static async getAdminBranch(){
-    return axios.get(`${BASE_URL}/auth/get-admin-branch`, this.getAuthHeaders());
+  static async getAdminStudents() {
+    return axios.get(`${BASE_URL}/auth/student3`, this.getAuthHeaders());
   }
-  static async getStudentDash()
-  {
+  static async getAdminBranch() {
+    return axios.get(
+      `${BASE_URL}/auth/get-admin-branch`,
+      this.getAuthHeaders()
+    );
+  }
+  static async getStudentDash() {
     return axios.get(`${BASE_URL}/auth/student-dash`, this.getAuthHeaders());
   }
-  static async getStudentDash2()
-  {
+  static async getStudentDash2() {
     return axios.get(`${BASE_URL}/auth/student-dash2`, this.getAuthHeaders());
   }
-  static async updatePassword(password){
-    return axios.put(`${BASE_URL}/auth/update-student-pass`, {password}, this.getAuthHeaders());
+  static async updatePassword(password) {
+    return axios.put(
+      `${BASE_URL}/auth/update-student-pass`,
+      { password },
+      this.getAuthHeaders()
+    );
   }
 
   static async registerParent(
@@ -237,11 +248,11 @@ export class AuthService {
     student_id,
     cnic,
     address = "",
-    contactNumber = "",
+    contactNumber = ""
   ) {
     const children = [student_id];
     console.log(children);
-    console.log(password)
+    console.log(password);
     return axios.post(
       `${BASE_URL}/auth/register/parent`,
       {
@@ -256,7 +267,7 @@ export class AuthService {
       this.getAuthHeaders()
     );
   }
-  static async forgotPassword(email){
-    return axios.post(`${BASE_URL}/auth/student/forgot-password`, {email});
+  static async forgotPassword(email) {
+    return axios.post(`${BASE_URL}/auth/student/forgot-password`, { email });
   }
 }

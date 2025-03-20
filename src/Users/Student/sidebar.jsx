@@ -24,10 +24,10 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
       name: "Merit System",
       icon: <LiaFileInvoiceSolid />,
     },
-    {
-      name: "Settings",
-      icon: <IoSettings />,
-    },
+    // {
+    //   name: "Settings",
+    //   icon: <IoSettings />,
+    // },
     {
       name: "Logout",
       icon: <BiLogOut />,

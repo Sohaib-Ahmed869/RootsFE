@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import AddBranch from "./AddBranch";
 import AddAdmin from "./AddAdmin";
 import Sidebar from "./sidebar";
+import SuperAdminDashboard from "./final";
+import SuperAdminStudents from "./Students";
 import Main from "./main";
 import { BiMenu } from "react-icons/bi";
 import { use } from "react";
@@ -34,6 +36,8 @@ const Dashboard = () => {
         {activeOption === "Add Branch" && <AddBranch />}
         {activeOption === "Add Admin" && <AddAdmin />}
         {activeOption === "Dashboard" && <Main />}
+        {activeOption === "Control Panel" && <SuperAdminDashboard />}
+        {activeOption === "Students" && <SuperAdminStudents />}
       </div>
     </div>
   );

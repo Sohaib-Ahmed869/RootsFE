@@ -20,6 +20,14 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
       icon: <MdDashboard />,
     },
     {
+      name: "Control Panel",
+      icon: <IoSettings />,
+    },
+    {
+      name: "Students",
+      icon: <FaPeopleGroup />,
+    },
+    {
       name: "Add Branch",
       icon: <FaPlus />,
     },
@@ -32,6 +40,10 @@ const Sidebar = ({ isOpen, toggle, activeOption, setActiveOption }) => {
       icon: <BiLogOut />,
     },
   ]);
+
+  useEffect(() => {
+    console.log("Active Option", activeOption);
+  }, [activeOption]);
 
   return (
     <div
