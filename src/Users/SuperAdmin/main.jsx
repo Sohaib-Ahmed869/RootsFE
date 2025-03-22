@@ -614,6 +614,23 @@ const SuperAdminDashboard = () => {
     console.log(selectedBranch);
   }, [selectedBranch]);
 
+  const downloadReport = (classData) => {
+    const data = branches.branchData[selectedBranch].classPerformance
+      .filter(
+        (classData) =>
+          selectedClass === "all" || classData.class === selectedClass
+      )
+      .map((classData) => ({
+        Class: classData.class,
+        "Total Students": classData.totalStudents,
+        "Merit Points": classData.merits,
+        Violations: classData.violations,
+        "Net Points": classData.merits - classData.violations,
+        "Average Points": classData.averagePoints,
+      }));
+    exportCSV(data, "class_performance.csv");
+  };
+
   const exportCSV = (data, filename) => {
     const csv = Papa.unparse(data);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -759,29 +776,34 @@ const SuperAdminDashboard = () => {
         </div>
 
         {/* Branch Overview - Shown when no branch is selected */}
-        {selectedBranch==null || selectedBranch == "" && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            {branches &&
-              branches.branches &&
-              branches.branches.map((branch) => (
-                <div
-                  key={branch.id}
-                  className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"
-                  
-                >
-                  <h3 className="text-lg font-semibold">{branch.name}</h3>
-                  <p className="text-gray-600">{branch.address}</p>
-                  <p className="mt-2">Students: {branch.students.length}</p>
-                  <button className="mt-4 text-primary" onClick={()=>setSelectedBranch(branches.branches.indexOf(branch))}>
-                    Click to view details →
-                  </button>
-                </div>
-              ))}
-          </div>
-        )}
+        {selectedBranch == null ||
+          (selectedBranch == "" && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              {branches &&
+                branches.branches &&
+                branches.branches.map((branch) => (
+                  <div
+                    key={branch.id}
+                    className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"
+                  >
+                    <h3 className="text-lg font-semibold">{branch.name}</h3>
+                    <p className="text-gray-600">{branch.address}</p>
+                    <p className="mt-2">Students: {branch.students.length}</p>
+                    <button
+                      className="mt-4 text-primary"
+                      onClick={() =>
+                        setSelectedBranch(branches.branches.indexOf(branch))
+                      }
+                    >
+                      Click to view details →
+                    </button>
+                  </div>
+                ))}
+            </div>
+          ))}
 
         {/* Branch Specific View */}
-        {selectedBranch !==null &&  selectedBranch !== "" && (
+        {selectedBranch !== null && selectedBranch !== "" && (
           <>
             {/* Branch Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
@@ -928,7 +950,10 @@ const SuperAdminDashboard = () => {
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">Recent Activity</h3>
                 <div className="flex space-x-2">
-                  <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" onClick={exportRecentActivity}>
+                  <button
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                    onClick={exportRecentActivity}
+                  >
                     Export CSV
                   </button>
                 </div>
@@ -977,7 +1002,7 @@ const SuperAdminDashboard = () => {
                                 : "text-red-600"
                             }`}
                           >
-                            {record.points > 0 ? "+" : ""}
+                            {record.type === "merit" ? "+" : "-"}
                             {record.points}
                           </td>
                         </tr>
@@ -998,18 +1023,10 @@ const SuperAdminDashboard = () => {
 
             {/* Students View */}
             {currentView === "students" && (
-              <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="bg-white rounded-lg shadow-md p-6 mt-4">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-lg font-semibold">Student Rankings</h3>
                   <div className="flex space-x-4">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Search students..."
-                        className="px-4 py-2 border rounded-lg pl-10"
-                      />
-                      <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                    </div>
                     <button
                       className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary flex items-center gap-2"
                       onClick={handleExportCSV}
@@ -1071,7 +1088,10 @@ const SuperAdminDashboard = () => {
               <div className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-lg font-semibold">Class Performance</h3>
-                  <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary flex items-center gap-2">
+                  <button
+                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary flex items-center gap-2"
+                    onClick={downloadReport}
+                  >
                     <Download size={20} />
                     Download Report
                   </button>

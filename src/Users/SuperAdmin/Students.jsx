@@ -2024,48 +2024,7 @@ const SuperAdminStudents = () => {
               </div>
 
               <div className="mt-6 flex justify-between">
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => {
-                      setShowDetailsModal(false);
-                      setSelectedStudent(student);
-                      setNewStudent({
-                        name: selectedStudent.name,
-                        email: selectedStudent.email,
-                        rollNumber: selectedStudent.rollNumber,
-                        password: "",
-                        dateOfBirth: selectedStudent.dateOfBirth
-                          ? new Date(selectedStudent.dateOfBirth)
-                              .toISOString()
-                              .split("T")[0]
-                          : "",
-                        branch_id: selectedStudent.branch_id,
-                        class:
-                          selectedStudent.classId ||
-                          (typeof selectedStudent.class === "object"
-                            ? selectedStudent.class?._id
-                            : selectedStudent.class),
-                        cnic: selectedStudent.cnic,
-                        address: selectedStudent.address,
-                        contactNumber: selectedStudent.contactNumber,
-                      });
-                      setShowEditModal(true);
-                    }}
-                    className="px-3 py-1.5 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg flex items-center"
-                  >
-                    <Edit size={16} className="mr-1" /> Edit
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowDetailsModal(false);
-                      setSelectedStudent(selectedStudent);
-                      setShowResetPasswordModal(true);
-                    }}
-                    className="px-3 py-1.5 bg-indigo-50 text-indigo-800 border border-indigo-200 rounded-lg flex items-center"
-                  >
-                    <Lock size={16} className="mr-1" /> Reset Password
-                  </button>
-                </div>
+                <div className="flex space-x-2"></div>
 
                 <button
                   onClick={() => {
